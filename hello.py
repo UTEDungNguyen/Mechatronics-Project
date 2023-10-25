@@ -8,7 +8,7 @@ while True:
 
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2G    RAY)z
 
-    # Hiển thị khung kết quả        
+    # Hiển thị khung kết quả                       
     cv2.imshow('Video', frame)                                                                                                                                                                                              
 
     if cv2.waitKey(1) & 0xFF == ord('q'):   
