@@ -189,6 +189,7 @@ int main(void)
     case STOP_MOTOR_STATE:
     {
       pwm_t = 0;
+      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_t);
       break;
     }
     case START_MOTOR_STATE:
