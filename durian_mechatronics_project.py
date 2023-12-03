@@ -1,145 +1,76 @@
-# import cv2
-# import numpy as np
 
-# # Đọc ảnh đầu vào
-# file_hinh='C:\\Users\\havie\\Desktop\\DO_AN_CDT\\source_code\\main\\durian.jpg'
-# image = cv2.imread(file_hinh)
-
-# # Định nghĩa các điểm của vùng bạn muốn cắt (4 điểm)
-# points = np.array([[100, 100],  # Góc trên cùng bên trái
-#                    [300, 100],  # Góc trên cùng bên phải
-#                    [300, 300],  # Góc dưới cùng bên phải
-#                    [100, 300]], dtype=np.float32)  # Góc dưới cùng bên trái
-
-# # Xác định các điểm mới sau khi cắt (4 điểm)
-# new_points = np.array([[0, 0],  # Góc trên cùng bên trái
-#                        [200, 0],  # Góc trên cùng bên phải
-#                        [200, 200],  # Góc dưới cùng bên phải
-#                        [0, 200]], dtype=np.float32)  # Góc dưới cùng bên trái
-
-# # Tính ma trận biến đổi affine
-# matrix = cv2.getPerspectiveTransform(points, new_points)
-
-# # Thực hiện biến đổi ảnh
-# result = cv2.warpPerspective(image, matrix, (200, 200))
-
-# # Lưu ảnh kết quả
-# local_file ='C:\\Users\\havie\\Desktop\\DO_AN_CDT\\source_code\\main'
-# cv2.imwrite(local_file + '\\per_trans.jpg', result)
-
-# # Hiển thị ảnh kết quả
-# cv2.imshow(local_file + '\\per_trans.jpg', result)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 import cv2
 import numpy as np
 import imutils
-def otsu(img):
-    hist = cv2.calcHist([img],[0],None,[256],[0,255]) # tính histogram của ảnh
 
-    hist_norm = hist.ravel()
-    phuong_sai_t = 0 
-    M,N = img.shape
- 
-
-    for nguong in range(256):
-        Tong_gt_xam_A = 0  
-        Tong_gt_xam_B = 0  
-        Tong_pixel_A = 0  
-        Tong_pixel_B = 1   
-     
-
-        for x in range (0,256):
-            if x >= nguong:
-               Tong_pixel_A += hist_norm[x]
-               Tong_gt_xam_A += x*(hist_norm[x]/M*N)
-            else:
-                Tong_pixel_B += hist_norm[x]
-                Tong_gt_xam_B += x*(hist_norm[x]/M*N)
-        
-        mG = Tong_gt_xam_A + Tong_gt_xam_B  # cuong do trung binh cua anh
-
-        P1 =Tong_pixel_A/(M*N)  # tong xac suat tich luy
-        P2 =Tong_pixel_B/(M*N)
-
-        m1 = Tong_gt_xam_A/P1   # gtri cuong do trung binh cua pixel
-        m2 = Tong_gt_xam_B/P2     
-        phuong_sai = P1*((m1-mG)**2)+P2*((m2-mG)**2) 
-       
-
-
-        if (phuong_sai > phuong_sai_t):
-            phuong_sai_t = phuong_sai
-            nguong_toi_uu = nguong  
-
-
-
-    print("Ngưỡng tìm được", nguong_toi_uu)
-    return nguong_toi_uu
-
-
-
-def phan_doan_bang_cat_nguong(img, nguong):
-    img_phan_doan = np.zeros_like(img)
-    m, n = img.shape
-    for i in range(m):
-        for j in range(n):
-            if (img[i,j] < nguong):
-                img_phan_doan[i,j] = 0
-            else:
-                img_phan_doan[i,j] = 225 
-    return img_phan_doan
 # Đọc ảnh và chuyển đổi sang ảnh grayscale
-image = cv2.imread('main\\image\\1.png')
+image = cv2.imread('Mechatronics-Project\image\sr.png')
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # Áp dụng GaussianBlur để giảm nhiễu
-blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+blurred = cv2.GaussianBlur(gray, (5,5), 0)
+# Áp dụng GaussianBlur để giảm nhiễu và làm mịn ảnh
 
-nguong_toi_uu= otsu(blurred)
 
-# Sử dụng hàm Canny để phát hiện các biên
-edges = phan_doan_bang_cat_nguong(blurred, nguong_toi_uu)
+# Sử dụng phương pháp Canny để phát hiện biên
+edges = cv2.Canny(blurred, 105,110)
 
-# # Tìm contours trong ảnh
-_, img_binary = cv2.threshold(gray, nguong_toi_uu,255, cv2.THRESH_BINARY_INV)
-contours = cv2.findContours(img_binary.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+kernel = np.ones((5, 5), np.uint8)
+morphological_image = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+
+
+dilated = cv2.dilate(morphological_image, None, iterations=2)
+# # # Tìm contours trong ảnh
+# _, img_binary = cv2.threshold( morphological_image,255, cv2.THRESH_BINARY_INV)
+contours = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 cnts =imutils.grab_contours(contours)
 img_result = image.copy()
 countContours = 0
+num=0
 for cnt in cnts:
+    num+=1
     c_area = cv2.contourArea(cnt)
-
+    print(f'area {num}= {c_area}')
     countContours += 1
-    cv2.drawContours(img_result,[cnt], -1, (0,255,0) , 2)
+    if c_area>450:
+         cv2.drawContours(img_result,[cnt], -1, (0,255,0) , 2)
+    else: pass
 
-# contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# # Chọn contour lớn nhất
-# largest_contour = max(contours, key=cv2.contourArea)
+# markers = np.zeros_like(image)
+markers = cv2.connectedComponents(morphological_image)[1]
 
-# # Ưu tiên đơn giản hóa contour để giảm số lượng điểm
-# epsilon = 0.04 * cv2.arcLength(largest_contour, True)
-# approx = cv2.approxPolyDP(largest_contour, epsilon, True)
+# Đánh số mỗi vùng cần tách trên mask
+marker_id = 1
+for c in contours: 
+    cv2.drawContours(markers, [cnt], -1, (marker_id), -1)
+    marker_id += 1
+# markers = np.int32(markers)
+new_img=cv2.imread('Mechatronics-Project\image\sr.png')
+print("Type of image:", image.dtype)
+print("Shape of image:", image.shape)
+# Áp dụng Watershed để tách vùng
+cv2.watershed(new_img, markers)
+# In đánh dấu trên ảnh gốc
+image[markers == -1] = [0, 0, 255]  # Đánh dấu các vùng tách bằng màu đỏ
 
-# # Lặp qua các điểm của contour và vẽ đường và góc
-# for point in approx:
-#     x, y = point.ravel()
-#     cv2.circle(image, (x, y), 5, (0, 255, 0), -1)  # vẽ đường tròn tại mỗi điểm
-#     cv2.putText(image, f'({x}, {y})', (x + 10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
+markers_display = cv2.convertScaleAbs(markers)
+
+    
+
+# Hiển thị ảnh gốc và ảnh với contours
+cv2.imshow('Original Image', image)
+cv2.imshow('Mophol Image', morphological_image)
+cv2.imshow('Image with Contours', img_result)
+cv2.imshow('Image ', edges)
+cv2.imshow('Watershed Segmentation', markers_display)
+
 
 # Hiển thị ảnh
-cv2.imshow('Image with Corners', img_result)
-cv2.imshow('Image ', edges)
+# cv2.imshow('Image with Corners', img_result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 # Trong đoạn mã trên:
-
-# Sử dụng hàm cv2.findContours để tìm contours trong ảnh.
-# Chọn contour lớn nhất (hoặc bạn có thể chọn contour khác tùy thuộc vào ứng dụng cụ thể của bạn).
-# Ưu tiên đơn giản hóa contour để giảm số lượng điểm.
-# Lặp qua các điểm của contour và vẽ đường và góc tại mỗi điểm.
-# Vui lòng thay đổi đường dẫn đến ảnh và điều chỉnh các tham số nếu cần thiết dựa trên ảnh cụ thể của bạn.
 
 
 
