@@ -7,7 +7,7 @@ template = cv2.imread('durian_matching.png', cv2.IMREAD_GRAYSCALE)
 original_height_template, original_width_template = template.shape[:2]      
 
 # Tính kích thước mới (1/2 kích thước ban đầu)
-new_height_template = int(original_height_template / 2)
+new_height_template = int(original_height_template / 2) 
 new_width_template = int(original_width_template / 2)
 
 # Resize ảnh
