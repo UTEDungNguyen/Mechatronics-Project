@@ -37,7 +37,7 @@
 /* USER CODE BEGIN PD */
 #define RXBUF_SIZE 8
 #define DATA_PWM_SIZE 3
-#define DUTY_CYCLE_SIZE 29
+#define DUTY_CYCLE_SIZE 2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,13 +50,18 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 uint8_t rxbuf[RXBUF_SIZE];
+uint8_t rxbuf_2[RXBUF_SIZE];
 uint16_t pwm_t = 0;
 uint16_t state = 0;
+uint16_t state_change = 0;
 char data_pwm[DATA_PWM_SIZE];
 char duty_cycle_send[DUTY_CYCLE_SIZE];
 
@@ -77,6 +82,7 @@ static void MX_DMA_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -87,6 +93,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
   if (huart->Instance == USART1)
   {
+	state_change = 0;
     switch (rxbuf[0])
     {
     case 'S':
@@ -129,6 +136,24 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *) rxbuf, RXBUF_SIZE);
     __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
   }
+
+  if (huart->Instance == USART2)
+  {
+	  state = MOTOR_LEFT_STATE;
+	  state_change = 0;
+      for (int b = 0; b <= 1; b++)
+      {
+        data_pwm[b] = rxbuf_2[b];
+      }
+      pwm_t = atoi(data_pwm);
+      for (uint8_t i = 0U; i < Size; i++)
+      {
+        rxbuf_2[i] = '\0';
+      }
+    /* start the DMA again */
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, (uint8_t *) rxbuf_2, RXBUF_SIZE);
+    __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
+  }
 }
 /* USER CODE END 0 */
 
@@ -164,9 +189,12 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   MX_TIM2_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rxbuf, RXBUF_SIZE);
   __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rxbuf_2, RXBUF_SIZE);
+  __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
@@ -181,6 +209,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+//  HAL_UART_Transmit(&huart2, (uint8_t *) "dungdeptrai", sizeof("hello dungdeptrai"), 100);
+
     switch (state)
     {
     case STOP_MOTOR_STATE:
@@ -213,6 +243,14 @@ int main(void)
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
       break;
     }
+    }
+
+    if (state_change == 0)
+    {
+    	sprintf(duty_cycle_send, "%2d", pwm_t);
+		/* Transmit UART of Duty Cycle Polling */
+        HAL_UART_Transmit(&huart2, (uint8_t *) duty_cycle_send, sizeof(duty_cycle_send), 100);
+        state_change = 1;
     }
 //    sprintf(duty_cycle_send, "Duty Cycle Of DC Motor = %d \n", pwm_t);
     /* Transmit UART of Duty Cycle Polling */
@@ -434,6 +472,39 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 9600;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -441,8 +512,15 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
   /* DMA2_Stream2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
