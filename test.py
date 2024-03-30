@@ -42,7 +42,7 @@ def main():
             else :
                 if (ReadMemory(plc, 160, 0, S7WLWord) - vel) != 0 :
                     state = 0
-            #print(vel)
+            print(vel)
             # You might want to add a delay to avoid busy-waiting and improve performance
             time.sleep(0.1)
 
@@ -77,7 +77,7 @@ def ReadMemory(plc, byte, bit, datatype):
 if __name__ == "__main__":
     plc = c.Client()
     plc.connect('192.168.0.1', 0, 1)
-    #print(plc.get_connected())
+    print(plc.get_connected())
     time.sleep(2)
     #WriteMemory(plc, 0, 0, S7WLBit, 0)
     #print('Done')
