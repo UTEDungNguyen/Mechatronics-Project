@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="./header.css" />
+    <link rel="stylesheet" href="./config.css" />
+    <title>Smart Garden</title>
+  </head>
+  <body>
+    <div class="main">
+      <nav id="navbar" class="">
+        <div class="nav-wrapper">
+          <!-- Navbar Logo -->
+          <div class="logo">
+            <!-- Logo Placeholder for Inlustration -->
+            <a href="home.html"
+              ><i class="fa-solid fa-cannabis"></i> SMART GARDEN</a
+            >
+          </div>
+
+          <!-- Navbar Links -->
+          <ul id="menu">
+            <li><a href="home.html">Home</a></li>
+            <li class="active"><a href="./config.html">Config</a></li>
+            <li><a href="./camera.html">Camera</a></li>
+            <li><a href="./warning.html">Warning</a></li>
+            <li><a href="./contact.html">Chart</a></li>
+            <li>
+              <a href="#" class="action_btn" onclick="logout()">Log out</a>
+            </li>
+          </ul>
+          <div class="menuIcon">
+            <span class="icon icon-bars"></span>
+            <span class="icon icon-bars overlay"></span>
+          </div>
+        </div>
+      </nav>
+
+      <div class="overlay-menu">
+        <ul id="menu">
+          <li><a href="./home.html">Home</a></li>
+          <li class="active"><a href="./config.html">Config</a></li>
+          <li><a href="./camera.html">Camera</a></li>
+          <li><a href="./warning.html">Warning</a></li>
+          <li><a href="./contact.html">Chart</a></li>
+          <li>
+            <a href="#" class="action_btn" onclick="logout()">Log out</a>
+          </li>
+        </ul>
+      </div>
+      <div class="content">
+        <div class="control">
+          <h1 class="heading">Config Automation Mode</h1>
+          <div >
+            <!-- <span >Số ngày tuổi của cây</span>
+            <input type="number" id="day_auto" min="0" max="10" style="width: 40px; height: 20px; border: 1px solid black; color: black; text-align: center; border-radius: 5px;">
+          </br> -->
+            <span>
+              <span>Daily auto-detect at: </span>
+              <input type="number" id="hour_detect_auto" min="0" max="23" style="width: 40px; height: 20px; border: 1px solid black; color: black; text-align: center; border-radius: 5px;">
+              <span>:</span>
+              <input type="number" id="min_detect_auto" min="0" max="60"  style="width: 40px; height: 20px; border: 1px solid black; color: black; text-align: center; border-radius: 5px;">
+            </span>
+          </br>
+            <span>
+              <span>Daily Lighting at: </span>
+              <input type="number" id="hour_lighting_auto" min="0" max="23" style="width: 40px; height: 20px; border: 1px solid black; color: black; text-align: center; border-radius: 5px;">
+              <span>:</span>
+              <input type="number" id="min_lighting_auto" min="0" max="60" style="width: 40px; height: 20px; border: 1px solid black; color: black; text-align: center; border-radius: 5px;">
+            </span>
+          </div>
+          <div class="body">
+            <div class="bodyItem">
+              <span class="bodyItemHeading">Immature Stage</span>
+              <div class="formInput">
+                <label class="formLabel">Brightness</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="10"
+                    max="100"
+                    id="brightness_auto_1_slider"
+                    onchange="change_brightness_auto_1()"
+                  />
+                  <span id="brightness_auto_1_Value"></span>
+                </div>
+              </div>
+              <div class="formInput">
+                <label class="formLabel">Lighting Time</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="0.5"
+                    max="24"
+                    id="time_auto_1_slider"
+                    onchange="change_time_auto_1()"
+                  />
+                  <span id="time_auto_1_Value"></span>
+                </div>
+              </div>
+              <div class="formInput">
+                <label class="formLabel">pH</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="0.5"
+                    max="14"
+                    id="ph_auto_1_slider"
+                    onchange="change_ph_auto_1()"
+                  />
+                  <span id="ph_auto_1_Value"></span>
+                </div>
+              </div>
+              <div class="formInput">
+                <label class="formLabel">Quaility water</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="100"
+                    max="1500"
+                    id="ppm_auto_1_slider"
+                    onchange="change_ppm_auto_1()"
+                  />
+                  <span id="ppm_auto_1_Value"></span>
+                </div>
+              </div>
+            </div>
+            <div class="bodyItem">
+              <span class="bodyItemHeading">Mature Stage</span>
+              <div class="formInput">
+                <label class="formLabel">Brightness</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="10"
+                    max="100"
+                    id="brightness_auto_2_slider"
+                    onchange="change_brightness_auto_2()"
+                  />
+                  <span id="brightness_auto_2_Value"></span>
+                </div>
+              </div>
+              <div class="formInput">
+                <label class="formLabel">Lighting Time</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="0.5"
+                    max="24"
+                    id="time_auto_2_slider"
+                    onchange="change_time_auto_2()"
+                  />
+                  <span id="time_auto_2_Value"></span>
+                </div>
+              </div>
+              <div class="formInput">
+                <label class="formLabel">pH</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min="0"
+                    step="0.5"
+                    max="14"
+                    id="ph_auto_2_slider"
+                    onchange="change_ph_auto_2()"
+                  />
+                  <span id="ph_auto_2_Value"></span>
+                </div>
+              </div>
+              <div class="formInput">
+                <label class="formLabel">Quaility water</label>
+                <div class="inputForm">
+                  <input
+                    type="range"
+                    min=0"
+                    step="100"
+                    max="1500"
+                    id="ppm_auto_2_slider"
+                    onchange="change_ppm_auto_2()"
+                  />
+                  <span id="ppm_auto_2_Value"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button class="btn" onclick="config_auto_clicked()">UPDATE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const toggleBtn = document.querySelector(".toggle_btn");
+      const toggleBtnIcon = document.querySelector(".toggle_btn i");
+      const dropDownMenu = document.querySelector(".dropdown_menu");
+
+      toggleBtn.onclick = function () {
+        dropDownMenu.classList.toggle("open");
+        const isOpen = dropDownMenu.classList.contains("open");
+
+        toggleBtnIcon.classList = isOpen
+          ? "fa-solid fa-xmark"
+          : "fa-solid fa-bars";
+      };
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <!-- <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyBA6yTZp555yZFXkCDMw93GQqe_7A58N_0",
+          authDomain: "esp-firebase-f07dc.firebaseapp.com",
+          databaseURL: "https://esp-firebase-f07dc-default-rtdb.firebaseio.com",
+          projectId: "esp-firebase-f07dc",
+          storageBucket: "esp-firebase-f07dc.appspot.com",
+          messagingSenderId: "313931083002",
+          appId: "1:313931083002:web:de4674ef289e2a66972d43"
+        };
+      
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script> -->
+    <script src="firebase.js"></script>
+    <script src="main.js"></script>
+    <script src="./header.js"></script>
+  </body>
+</html>

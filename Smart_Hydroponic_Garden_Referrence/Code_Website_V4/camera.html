@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="./header.css" />
+    <link rel="stylesheet" href="./camera.css" />
+    <title>Smart Garden</title>
+  </head>
+  <body>
+    <div class="main">
+      <nav id="navbar" class="">
+        <div class="nav-wrapper">
+          <!-- Navbar Logo -->
+          <div class="logo">
+            <!-- Logo Placeholder for Inlustration -->
+            <a href="home.html"
+              ><i class="fa-solid fa-cannabis"></i> SMART GARDEN</a
+            >
+          </div>
+
+          <!-- Navbar Links -->
+          <ul id="menu">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="./config.html">Config</a></li>
+            <li class="active"><a href="camera.html">Camera</a></li>
+            <li><a href="./warning.html">Warning</a></li>
+            <li><a href="./contact.html">Chart</a></li>
+            <li>
+              <a href="#" class="action_btn" onclick="logout()">Log out</a>
+            </li>
+          </ul>
+          <div class="menuIcon">
+            <span class="icon icon-bars"></span>
+            <span class="icon icon-bars overlay"></span>
+          </div>
+        </div>
+      </nav>   
+
+      <div class="overlay-menu">
+        <ul id="menu">
+          <li><a href="./home.html">Home</a></li>
+          <li><a href="./config.html">Config</a></li>
+          <li class="active"><a href="camera.html">Camera</a></li>
+          <li><a href="./warning.html">Warning</a></li>
+          <li><a href="./contact.html">Chart</a></li>
+          <li>
+            <a href="#" class="action_btn" onclick="logout()">Log out</a>
+          </li>
+        </ul>
+      </div>
+      <div class="content">
+        <div class="iframe-container">
+          <iframe
+            src="http://192.168.1.234/"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <div class="control">
+          <button id="button_1"  onclick="pos1_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 1</span>
+          </button>
+          <button id="button_2" onclick="pos2_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 2</span>
+          </button>
+          <button id="button_3" onclick="pos3_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 3</span>
+          </button>
+          <button id="button_4" onclick="pos4_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 4</span>
+          </button>
+          <button id="button_5" onclick="pos5_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 5</span>
+          </button>
+          <button id="button_6" onclick="pos6_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 6</span>
+          </button>
+          <button id="button_7" onclick="pos7_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 7</span>
+          </button>
+          
+          <button id="button_8" onclick="pos8_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 8</span>
+          </button>
+          <button id="button_9" onclick="pos9_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 9</span>
+          </button>
+          <button id="button_10" onclick="pos10_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 10</span>
+          </button>
+          <button id="button_11" onclick="pos11_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 11</span>
+          </button>
+          <button id="button_12" onclick="pos12_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 12</span>
+          </button>
+
+          <button id="button_13"  onclick="pos13_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 13</span>
+          </button>
+          <button id="button_14" onclick="pos14_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 14</span>
+          </button>
+          <button id="button_15" onclick="pos15_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 15</span>
+          </button>
+          <button id="button_16" onclick="pos16_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 16</span>
+          </button>
+          <button id="button_17" onclick="pos17_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 17</span>
+          </button>
+          <button id="button_18" onclick="pos18_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 18</span>
+          </button>
+          <button id="button_19" onclick="pos19_clicked()" class="wrapperBtn">
+            <img src="./image/download.jpg" alt="" />
+            <span>Plant 19</span>
+          </button>
+          <!-- <button onclick="posHome_clicked()">Home</button> -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const toggleBtn = document.querySelector(".toggle_btn");
+      const toggleBtnIcon = document.querySelector(".toggle_btn i");
+      const dropDownMenu = document.querySelector(".dropdown_menu");
+
+      toggleBtn.onclick = function () {
+        dropDownMenu.classList.toggle("open");
+        const isOpen = dropDownMenu.classList.contains("open");
+
+        toggleBtnIcon.classList = isOpen
+          ? "fa-solid fa-xmark"
+          : "fa-solid fa-bars";
+      };
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-storage.js"></script>
+    <!-- <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyBA6yTZp555yZFXkCDMw93GQqe_7A58N_0",
+          authDomain: "esp-firebase-f07dc.firebaseapp.com",
+          databaseURL: "https://esp-firebase-f07dc-default-rtdb.firebaseio.com",
+          projectId: "esp-firebase-f07dc",
+          storageBucket: "esp-firebase-f07dc.appspot.com",
+          messagingSenderId: "313931083002",
+          appId: "1:313931083002:web:de4674ef289e2a66972d43"
+        };
+      
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script> -->
+    <script src="firebase.js"></script>
+    <script src="main.js"></script>
+    <script src="./header.js"></script>
+  </body>
+</html>

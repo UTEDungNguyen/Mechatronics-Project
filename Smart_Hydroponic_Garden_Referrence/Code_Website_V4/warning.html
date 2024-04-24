@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="./header.css" />
+    <link rel="stylesheet" href="./warning.css" />
+    <title>Smart Garden</title>
+  </head>
+  <body>
+    <div class="main">
+      <nav id="navbar" class="">
+        <div class="nav-wrapper">
+          <!-- Navbar Logo -->
+          <div class="logo">
+            <!-- Logo Placeholder for Inlustration -->
+            <a href="home.html"
+              ><i class="fa-solid fa-cannabis"></i> SMART GARDEN</a
+            >
+          </div>
+
+          <!-- Navbar Links -->
+          <ul id="menu">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="./config.html">Config</a></li>
+            <li><a href="camera.html">Camera</a></li>
+            <li class="active"><a href="./warning.html">Warning</a></li>
+            <li><a href="./contact.html">Chart</a></li>
+            <li>
+              <a href="#" class="action_btn" onclick="logout()">Log out</a>
+            </li>
+          </ul>
+          <div class="menuIcon">
+            <span class="icon icon-bars"></span>
+            <span class="icon icon-bars overlay"></span>
+          </div>
+        </div>
+      </nav>
+
+      <div class="overlay-menu">
+        <ul id="menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="./config.html">Config</a></li>
+          <li><a href="camera.html">Camera</a></li>
+          <li class="active"><a href="./warning.html">Warning</a></li>
+          <li><a href="./contact.html">Chart</a></li>
+          <li>
+            <a href="#" class="action_btn" onclick="logout()">Log out</a>
+          </li>
+        </ul>
+      </div>
+      <h1 class="heading">Abnormal Plant</h1>
+      <div class="container"></div>
+    </div>
+    <script>
+      const toggleBtn = document.querySelector(".toggle_btn");
+      const toggleBtnIcon = document.querySelector(".toggle_btn i");
+      const dropDownMenu = document.querySelector(".dropdown_menu");
+
+      toggleBtn.onclick = function () {
+        dropDownMenu.classList.toggle("open");
+        const isOpen = dropDownMenu.classList.contains("open");
+
+        toggleBtnIcon.classList = isOpen
+          ? "fa-solid fa-xmark"
+          : "fa-solid fa-bars";
+      };
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-storage.js"></script>
+    <script src="firebase.js"></script>
+    <script src="main.js"></script>
+    <script src="./header.js"></script>
+
+    <!-- <script>
+        // // Lấy tham chiếu đến Firebase Storage
+        // var storage = firebase.storage();
+      
+        // // Lấy đường dẫn đến ảnh trong Firebase Storage
+        // var imagePath = "logo2.jpg";
+      
+        // // Lấy tham chiếu đến ảnh
+        // var imageRef = storage.ref().child(imagePath);
+        // // console.log(imageRef);
+        // // Lấy URL tải xuống ảnh
+        // imageRef.getDownloadURL().then(function(url) {
+        //   // Gán URL vào thuộc tính src của thẻ <img>
+        // var img = document.getElementById('plant_1_image');
+        // img.src = url;
+        // }).catch(function(error) {
+        //   console.log(error);
+        // });
+
+         
+    </script> -->
+  </body>
+</html>
