@@ -22,10 +22,11 @@ matrix = cv2.getPerspectiveTransform(points, new_points)
 # Thực hiện biến đổi ảnh
 result = cv2.warpPerspective(image, matrix, (200, 200))
 
-# Lưu ảnh kết quả
-cv2.imwrite('cropped_image_affine.jpg', result)
+# # Lưu ảnh kết quả
+# cv2.imwrite('cropped_image_affine.jpg', result)   
 
 # Hiển thị ảnh kết quả
+cv2.imshow('original_durian', image)
 cv2.imshow('Cropped Image (Affine)', result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
