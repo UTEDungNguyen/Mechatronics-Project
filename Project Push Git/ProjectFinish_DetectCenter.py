@@ -68,7 +68,9 @@ def getcoutours(img, imgContour):
     for cnt in contours:
         area = cv2.contourArea(cnt)
         print("Area of Contour",area)
+        selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
         areaMin = 1000 # Config area
+
         if area > areaMin:  
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
             M = cv2.moments(cnt)
@@ -77,6 +79,8 @@ def getcoutours(img, imgContour):
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
             x, y, w, h = cv2.boundingRect(approx)
+            ellipse = cv2.fitEllipse(selected_contour)
+            cv2.ellipse(image, ellipse, (0, 255, 0), 3)
             cv2.circle(image,(cx,cy),7,(0,0,255),-1)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)  
             # cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
@@ -84,7 +88,7 @@ def getcoutours(img, imgContour):
             
 
 while True:
-    image = cv2.imread("Result Remove Background\sample No.16.png")
+    image = cv2.imread("Result Remove Background\sample No.1.png")
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
