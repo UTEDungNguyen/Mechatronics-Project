@@ -67,20 +67,24 @@ def getcoutours(img, imgContour):
     contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        print(area)
+        print("Area of Contour",area)
         areaMin = 1000 # Config area
         if area > areaMin:  
-            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)  
+            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
+            M = cv2.moments(cnt)
+            cx= int(M["m10"]/M["m00"])
+            cy= int(M["m01"]/M["m00"])  
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
             x, y, w, h = cv2.boundingRect(approx)
+            cv2.circle(image,(cx,cy),7,(0,0,255),-1)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)  
-            cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
-                        (0, 255, 0), 2)
+            # cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
+            #             (0, 255, 0), 2)
             
 
 while True:
-    image = cv2.imread("Result Remove Background\sample No.1.png")
+    image = cv2.imread("Result Remove Background\sample No.16.png")
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -95,7 +99,7 @@ while True:
     kernel = np.ones((3,3),np.uint8)
     output_erosion = cv2.morphologyEx(output_adapthresh, cv2.MORPH_OPEN,kernel)
     output_erosion = cv2.erode(output_adapthresh, kernel,iterations=2)
-    output_erosion = cv2.dilate(output_adapthresh, kernel,iterations=2)
+    output_erosion = cv2.dilate(output_adapthresh, kernel,iterations=4)
     
     # Detect Contour and measure the area durian object 
     getcoutours(output_erosion,image)
