@@ -63,7 +63,7 @@ class IMG_Processing():
                             (0,255,0),2)
 
 class capture_img():
-    def __init__(self) -> None:
+    def __init__(self) :
         pass
     
  
@@ -113,17 +113,20 @@ while True:
     imgblur = cv2.GaussianBlur(img,(7,7),1)   
     gray = cv2.cvtColor(imgblur, cv2.COLOR_BGR2GRAY)
 
-    threshold1 = cv2.getTrackbarPos("Thershold1","Parameters")
-    threshold2 = cv2.getTrackbarPos("Thershold2","Parameters")
+    # threshold1 = cv2.getTrackbarPos("Thershold1","Parameters")
+    # threshold2 = cv2.getTrackbarPos("Thershold2","Parameters")
 
-    imgCany = cv2.Canny(gray,threshold1,threshold2)
+    # imgCany = cv2.Canny(gray,threshold1,threshold2)
+    # Adapte threshold img no need Detect thresh Manual
+    output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
     # Create the array 3x3 vailue 1
     kernel = np.ones((3, 3), np.uint8)
     # Dilation the object 
-    imgDil = cv2.dilate(imgCany,kernel,iterations=2)
+    imgDil = cv2.dilate(output_adapthresh,kernel,iterations=2)  #imgCany
     opening = cv2.morphologyEx(imgDil,cv2.MORPH_OPEN,kernel, iterations=2)
     IMG_Processing.getcoutours(imgDil,imgContour)
-    imgstack = IMG_Processing.stackImages(0.8,([img,gray,imgCany],
+    # Show image 
+    imgstack = IMG_Processing.stackImages(0.8,([img,gray,output_adapthresh],
                                 [imgDil,imgContour,opening]))
 
 
