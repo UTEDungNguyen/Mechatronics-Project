@@ -7,7 +7,7 @@ from PIL import Image
 import imutils
 import os
 # import numpy as np
-import removebg
+# import removebg
 
 # def sharpen_image_laplacian(image):
 #     laplacian = cv2.Laplacian(image, cv2.CV_64F)
@@ -65,7 +65,8 @@ def stackImages(scale, imgArray):
 
 
 def getcoutours(img, imgContour):
-    _,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
         area = cv2.contourArea(cnt)
         print("Area of Contour",area)
@@ -89,8 +90,8 @@ def getcoutours(img, imgContour):
             
 
 while True:
-    image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    
+    # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.1_processed.jpg")
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
