@@ -66,7 +66,7 @@ def stackImages(scale, imgArray):
 
 def getcoutours(img, imgContour):
     #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
     for cnt in contours:
         area = cv2.contourArea(cnt)
         print("Area of Contour",area)
