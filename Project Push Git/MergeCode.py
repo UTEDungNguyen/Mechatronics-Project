@@ -5,8 +5,10 @@ import numpy as np
 # from rembg import remove 
 from PIL import Image
 import imutils
+import cvzone
+from cvzone.SelfiSegmentationModule import SelfiSegmentation
 import os
-# import numpy as np
+
 # import removebg
 
 # def sharpen_image_laplacian(image):
@@ -29,6 +31,37 @@ import os
 #     # output = remove(input_img)
 #     # output.save(out)   
 #     out = cv2.imwrite(f'../Project Push Git/Result Remove Background/rmbg_{File}',image)   # Write the image rm background in folder Result
+
+
+# Initialize the SelfiSegmentation module
+segmentor = SelfiSegmentation()
+
+# Set the directory containing images and the directory to save the processed images
+input_image_dir = "image"
+output_image_dir = "Result Remove Background"
+# Create the output directory if it doesn't exist
+if not os.path.exists(output_image_dir):
+    os.makedirs(output_image_dir)
+
+# List all image files in the directory
+image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg'))]
+
+# Ensure there are images in the directory
+if not image_files:
+    print("No images found in the directory.")
+else:
+    # Process each image in the directory
+    for img_path in image_files:
+        # Read the image
+        img = cv2.imread(img_path)
+        # Perform background removal
+        img_out = segmentor.removeBG(img,cutThreshold=0.85)  # Adjust threshold as needed
+        # Get the filename (without extension) from the input image path
+        filename = os.path.splitext(os.path.basename(img_path))[0]
+
+        # Save the processed image to the output directory
+        output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
+        cv2.imwrite(output_path, img_out)
 
 def stackImages(scale, imgArray):
     rows = len(imgArray)
@@ -79,7 +112,7 @@ def getcoutours(img, imgContour):
             cx= int(M["m10"]/M["m00"])
             cy= int(M["m01"]/M["m00"])  
             peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            approx = cv2.approxPolyDP(cnt, 0.02* peri, True) # 0.02
             x, y, w, h = cv2.boundingRect(approx)
             ellipse = cv2.fitEllipse(selected_contour)
             cv2.ellipse(image, ellipse, (0, 255, 0), 3)
@@ -91,7 +124,7 @@ def getcoutours(img, imgContour):
 
 while True:
     # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.17_processed.png")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.1_processed.jpg")
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
