@@ -140,6 +140,7 @@ def getcoutours(img, imgContour):
                  print("Durian meet standards")
             else:
                 print("Durian does not meet standards")
+            
             # Draw the elipse classification and object 
             cv2.ellipse(image, ellipse, (0, 255, 0), 3)
             cv2.circle(image,(cx,cy),7,(0,0,255),-1)
