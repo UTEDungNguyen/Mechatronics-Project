@@ -31,7 +31,7 @@ img = cv2.resize(img,(400,500))
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # Thresholding
-_, thresh = cv2.threshold(gray,100,255, cv2.THRESH_BINARY)
+_, thresh = cv2.threshold(gray,150,255, cv2.THRESH_BINARY)
 
 
 cv2.imshow('threshold_img', thresh)
