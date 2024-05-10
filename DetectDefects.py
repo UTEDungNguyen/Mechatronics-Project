@@ -12,11 +12,11 @@ def sharpen_image_laplacian(image):
     sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
     return sharpened_image  # Return the sharpened image
 
-img1 = cv2.imread('image\img_4.jpg')
+img1 = cv2.imread('image\sampleNo.2.JPG')
 # img_reszie = cv2.resize(img1, (200, 300))
 # cv2.imwrite('img_4.png', img_reszie, [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
-inp = r'image\\img_4.jpg'
+inp = r'image\sampleNo.2.JPG'
 out = r'image\\img_rmbg.png'
 
 input_img = Image.open(inp)
@@ -31,8 +31,8 @@ img = cv2.resize(img,(400,500))
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # Thresholding
-# _, thresh = cv2.threshold(gray,150,255, cv2.THRESH_BINARY)
-thresh = cv2.adaptiveThreshold (gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,115,1)  #51
+_, thresh = cv2.threshold(gray,150,255, cv2.THRESH_BINARY)
+
 
 cv2.imshow('threshold_img', thresh)
 
@@ -42,7 +42,7 @@ cv2.imshow('threshold_img', thresh)
 # remove_noise:
 kernel = np.ones((3, 3), np.uint8)
 
-sure_bg = cv2.dilate(thresh,kernel, iterations=5)
+sure_bg = cv2.dilate(thresh,kernel, iterations=2)
 
 cv2.imshow('sure_bg',sure_bg)
 

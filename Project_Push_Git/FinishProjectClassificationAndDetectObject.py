@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 # import rembg
 # from scipy.spatial import distance
 # from rembg import remove 
@@ -37,14 +38,14 @@ import os
 segmentor = SelfiSegmentation()
 
 # Set the directory containing images and the directory to save the processed images
-input_image_dir = "image"
+input_image_dir = "Image"
 output_image_dir = "Result Remove Background"
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_image_dir):
     os.makedirs(output_image_dir)
 
 # List all image files in the directory
-image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg'))]
+image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
 # Ensure there are images in the directory
 if not image_files:
@@ -102,19 +103,46 @@ def getcoutours(img, imgContour):
     contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        print("Area of Contour",area)
+        # print("Area of object durian (pixel): ",area)
         selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
         areaMin = 1000 # Config area
 
-        if area > areaMin:  
+        if area > areaMin: 
+            print("Area of object durian (pixel): ",area) 
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
             M = cv2.moments(cnt)
             cx= int(M["m10"]/M["m00"])
             cy= int(M["m01"]/M["m00"])  
+            
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02* peri, True) # 0.02
             x, y, w, h = cv2.boundingRect(approx)
             ellipse = cv2.fitEllipse(selected_contour)
+           
+            # Unpack the array into separate variables
+            center = ellipse[0]
+            semi_majorAxis = (ellipse[1][0])/2
+            semi_minorAxis = (ellipse[1][1])/2
+            angle = ellipse[2]
+
+            # Caculate the elipse for classification durian
+            area_elipse =math.pi * semi_majorAxis * semi_minorAxis
+            area_elipse = "{:.3f}".format(area_elipse)
+            area_elipse = float(area_elipse)
+            print("Area of the elipse classification:", area_elipse)
+            # Classification Durian 
+            result_sub = area_elipse - area
+            # Convert the result of sub to perentage
+            result_percent = result_sub/area_elipse
+            result_percent = "{:.3f}".format(result_percent)
+            result_percent = float(result_percent)
+            print(result_percent)
+            if (result_percent < 0.2) : # 20% 
+                 print("Durian meet standards")
+            else:
+                print("Durian does not meet standards")
+            
+            # Draw the elipse classification and object 
             cv2.ellipse(image, ellipse, (0, 255, 0), 3)
             cv2.circle(image,(cx,cy),7,(0,0,255),-1)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
@@ -123,14 +151,17 @@ def getcoutours(img, imgContour):
             
 
 while True:
-    # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.1_processed.jpg")
+    image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
+    if image is None:
+        print('Wrong path:', image)
+    # cv2.imshow('ajnsad', image)
+    # image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Warming threshold needed apdative
     # Convert Binary Image using 3 method
-    #thresh, output_binthresh = cv2.threshold(gray, 45, 255, cv2.THRESH_BINARY)    
+    #thresh,  output_otsuthresh = cv2.threshold(gray,110, 255, cv2.THRESH_BINARY)    
     thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     #output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
     
