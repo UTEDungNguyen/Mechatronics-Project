@@ -103,11 +103,11 @@ def getcoutours(img, imgContour):
     contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        print("Area of object durian (pixel): ",area)
         selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
         areaMin = 1000 # Config area
 
-        if area > areaMin:  
+        if area > areaMin:
+            print("Area of object durian (pixel): ",area)  
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
             M = cv2.moments(cnt)
             cx= int(M["m10"]/M["m00"])
@@ -128,14 +128,14 @@ def getcoutours(img, imgContour):
             area_elipse =math.pi * semi_majorAxis * semi_minorAxis
             area_elipse = "{:.3f}".format(area_elipse)
             area_elipse = float(area_elipse)
-            print("Area of the elipse classification:", area_elipse)
+            print("Area of the elipse classification (pixel):", area_elipse)
             # Classification Durian 
             result_sub = area_elipse - area
             # Convert the result of sub to perentage
             result_percent = result_sub/area_elipse
             result_percent = "{:.3f}".format(result_percent)
             result_percent = float(result_percent)
-            print(result_percent)
+            print("Area of substraction (pixel): ",result_percent)
             if (result_percent < 0.2) : # 20% 
                  print("Durian meet standards")
             else:
@@ -151,7 +151,7 @@ def getcoutours(img, imgContour):
 
 while True:
     # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.4_processed.jpg")
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
