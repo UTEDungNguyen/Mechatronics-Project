@@ -38,14 +38,14 @@ import os
 segmentor = SelfiSegmentation()
 
 # Set the directory containing images and the directory to save the processed images
-input_image_dir = "image"
+input_image_dir = "Image"
 output_image_dir = "Result Remove Background"
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_image_dir):
     os.makedirs(output_image_dir)
 
 # List all image files in the directory
-image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg'))]
+image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
 # Ensure there are images in the directory
 if not image_files:
@@ -103,11 +103,20 @@ def getcoutours(img, imgContour):
     contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
     for cnt in contours:
         area = cv2.contourArea(cnt)
+<<<<<<< HEAD:Project Push Git/FinishProjectClassificationAndDetectObject.py
         selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
         areaMin = 1000 # Config area
 
         if area > areaMin:
             print("Area of object durian (pixel): ",area)  
+=======
+        # print("Area of object durian (pixel): ",area)
+        selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
+        areaMin = 1000 # Config area
+
+        if area > areaMin: 
+            print("Area of object durian (pixel): ",area) 
+>>>>>>> e7ed1e99b17737f41139522b5ae108c01b4f93fd:Project_Push_Git/FinishProjectClassificationAndDetectObject.py
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
             M = cv2.moments(cnt)
             cx= int(M["m10"]/M["m00"])
@@ -150,8 +159,16 @@ def getcoutours(img, imgContour):
             
 
 while True:
+<<<<<<< HEAD:Project Push Git/FinishProjectClassificationAndDetectObject.py
     # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
     image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.4_processed.jpg")
+=======
+    image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
+    if image is None:
+        print('Wrong path:', image)
+    # cv2.imshow('ajnsad', image)
+    # image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
+>>>>>>> e7ed1e99b17737f41139522b5ae108c01b4f93fd:Project_Push_Git/FinishProjectClassificationAndDetectObject.py
     image = cv2.resize(image,(400,300))
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

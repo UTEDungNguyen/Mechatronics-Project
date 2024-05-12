@@ -47,7 +47,7 @@ class IMG_Processing():
 
 
     def getcoutours(frame_gray,frame_countour):
-        _,contours,hierachy = cv2.findContours(frame_gray,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours,hierachy = cv2.findContours(frame_gray,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for cnt in contours:
             area = cv2.contourArea(cnt)
