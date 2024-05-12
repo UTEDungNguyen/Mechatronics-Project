@@ -1,11 +1,16 @@
 import cv2
 import numpy as np
-import math
-from PIL import Image
-import imutils
-import cvzone
-from cvzone.SelfiSegmentationModule import SelfiSegmentation
-import os
+
+def empty(a):
+    pass
+cv2.namedWindow("Tracking")
+cv2.resizeWindow("Tracking",640,240)
+cv2.createTrackbar("LH", "Tracking", 115, 255, empty) # 97
+cv2.createTrackbar("LS", "Tracking", 0, 255, empty)
+cv2.createTrackbar("LV", "Tracking", 0, 255, empty)
+cv2.createTrackbar("UH", "Tracking", 137, 255, empty)
+cv2.createTrackbar("US", "Tracking", 184, 255, empty)
+cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 
 def stackImages(scale, imgArray):
     rows = len(imgArray)
@@ -40,6 +45,10 @@ def stackImages(scale, imgArray):
         ver = hor
     return ver
 
+def sharpen_image_laplacian(image):
+    laplacian = cv2.Laplacian(image, cv2.CV_64F)
+    sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
+    return sharpened_image  # Return the sharpened image
 
 def getcoutours(img, imgContour):
     #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -47,52 +56,66 @@ def getcoutours(img, imgContour):
     for cnt in contours:
         area = cv2.contourArea(cnt)
         selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-        areaMin = 1000 # Config area
-
+        print("Area of defect",area)
+        areaMin = 3000 # Config area
         if area > areaMin:
-            print("Area of object durian (pixel): ",area)  
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
             peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02* peri, True) # 0.02
+            approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
             x, y, w, h = cv2.boundingRect(approx)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
             # cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
             #             (0, 255, 0), 2)
-            
-
 while True:
-    # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.4.JPG")
-    image = cv2.resize(image,(400,300))
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Image\sample No.11.JPG")
+    sharpened_image = sharpen_image_laplacian(image)
+    rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # Warming threshold needed apdative
-    # Convert Binary Image using 3 method
-    #thresh,  output_otsuthresh = cv2.threshold(gray,110, 255, cv2.THRESH_BINARY)    
-    thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    #output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
+    # Convert BGR to HSV 
+    HSV_img = cv2.cvtColor(rgb_img,cv2.COLOR_BGR2HSV)
+
+    # Set range for red color and  
+    l_h = cv2.getTrackbarPos("LH", "Tracking")
+    l_s = cv2.getTrackbarPos("LS", "Tracking")
+    l_v = cv2.getTrackbarPos("LV", "Tracking")
+
+    u_h = cv2.getTrackbarPos("UH", "Tracking")
+    u_s = cv2.getTrackbarPos("US", "Tracking")
+    u_v = cv2.getTrackbarPos("UV", "Tracking")
+
+    l_b = np.array([l_h, l_s, l_v])
+    u_b = np.array([u_h, u_s, u_v])
+
+    mask = cv2.inRange(HSV_img, l_b, u_b)
+
+    # Morphological and Dilate
+    kernel = np.ones((5,5),np.uint8)
+    mask_morpho = cv2.morphologyEx(mask, cv2.MORPH_OPEN,kernel)
+
+    mask_dilate = cv2.dilate(mask_morpho, kernel,iterations=2)
+    res = cv2.bitwise_and(image,image, mask=mask_dilate)
+
+    #
+    # Warming threshold needed apdative 
+    # Detecting contours in image
+    thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
+    gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
+    bitwise_img = cv2.bitwise_not(gray_image)
+
+    # Detecting contours in image
+    getcoutours(bitwise_img,image)
+
+    imgstack = stackImages(0.8, ([image,output_threshold,bitwise_img], [mask_dilate,mask,res]))
     
-
-    # Erosion image to detect Object Elipse for Durian 
-    kernel = np.ones((3,3),np.uint8)
-    output_morphology = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_OPEN,kernel)
-    output_erosion = cv2.erode(output_otsuthresh, kernel,iterations=2)
-    output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
-    
-    boder =  output_dilate - output_erosion 
-    # Detect Contour and measure the area durian object 
-    getcoutours(boder,image)
-    imgstack = stackImages(0.8, ([image,boder, output_otsuthresh], [output_erosion,output_morphology,output_dilate]))
-
-    #cv2.imshow("Binary Threshold (fixed)", output_binthresh)
-    # cv2.imshow("Image original",image)
-    # cv2.imshow("Binary Threshold (otsu)", output_otsuthresh)
-    # cv2.imshow("Adaptive Thresholding", output_adapthresh)
-    # cv2.imshow("Erosion", output_erosion)
-    cv2.imshow("Result Image", imgstack)
-
+    #cv2.imshow("Image Origin",image)
+    #cv2.imshow("output_morphology",output_morphology)
+    #cv2.imshow("gray",gray_image)
+    #cv2.imshow("thresh",output_threshold)
+    #cv2.imshow("HSV image",bitwise_img)
+    #cv2.imshow("mask dilate", mask_dilate)
+    #cv2.imshow("res", res)
+    cv2.imshow("Imag stack",imgstack)
     key = cv2.waitKey(1)
     if key == ord("q"):
         break
 cv2.destroyAllWindows()
-
