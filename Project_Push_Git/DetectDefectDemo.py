@@ -5,11 +5,11 @@ def empty(a):
     pass
 cv2.namedWindow("Tracking")
 cv2.resizeWindow("Tracking",640,240)
-cv2.createTrackbar("LH", "Tracking", 115, 255, empty) # 97
+cv2.createTrackbar("LH", "Tracking", 97, 255, empty) # 97
 cv2.createTrackbar("LS", "Tracking", 0, 255, empty)
 cv2.createTrackbar("LV", "Tracking", 0, 255, empty)
-cv2.createTrackbar("UH", "Tracking", 137, 255, empty)
-cv2.createTrackbar("US", "Tracking", 184, 255, empty)
+cv2.createTrackbar("UH", "Tracking", 106, 255, empty)
+cv2.createTrackbar("US", "Tracking", 174, 255, empty)
 cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 
 def stackImages(scale, imgArray):
@@ -59,15 +59,15 @@ def getcoutours(img, imgContour):
         print("Area of defect",area)
         areaMin = 3000 # Config area
         if area > areaMin:
-            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
+            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
             peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
+            approx = cv2.approxPolyDP(cnt, 0.02* peri, True)  # 0.009
             x, y, w, h = cv2.boundingRect(approx)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
             # cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
             #             (0, 255, 0), 2)
 while True:
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Image\sample No.11.JPG")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Image\sample No.6.JPG")
     sharpened_image = sharpen_image_laplacian(image)
     rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
 
