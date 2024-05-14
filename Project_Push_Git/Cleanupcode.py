@@ -17,12 +17,17 @@ cv2.createTrackbar("UH", "Tracking", 106, 255, empty)
 cv2.createTrackbar("US", "Tracking", 174, 255, empty)
 cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 
-# Remove background to detect object image
+# Remove background to detect object image Custom folder
 # Initialize the SelfiSegmentation module
 segmentor = SelfiSegmentation()
+
 # Set the directory containing images and the directory to save the processed images
 input_image_dir = "Image"
-output_image_dir = "Result Remove Background"
+output_image_dir = "Result_Remove_Background"
+# Create the output directory if it doesn't exist
+if not os.path.exists(output_image_dir):
+    os.makedirs(output_image_dir)
+
 # List all image files in the directory
 image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
@@ -43,18 +48,9 @@ else:
         output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
         cv2.imwrite(output_path, img_out)
 
-# Create the output directory if it doesn't exist
-if not os.path.exists(output_image_dir):
-    os.makedirs(output_image_dir)
 
 
 class DetectObject:
-    def __init__(self):
-        self.segmentor = SelfiSegmentation()
-    
-    def remove_background(self, img):
-        return self.segmentor.removeBG(img, cutThreshold=0.85)
-
     def get_contours(self, img, imgContour):
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
@@ -154,7 +150,7 @@ detect_object = DetectObject()
 detect_defect = DetectDefect()
 
 while True:
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result Remove Background\sample No.4_processed.jpg")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result_Remove_Background\sample No.4_processed.jpg")
     image = cv2.resize(image,(400,300))
 
     # Divide input from image and processing in the Detect_Object class and Detect_Defect
