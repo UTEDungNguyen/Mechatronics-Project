@@ -33,14 +33,10 @@ segmentor = SelfiSegmentation()
 #             cv2.imwrite(folder +"/"+"sample No."+str(count) +".JPG", frame)
 #             print('capture success......................')
 #             # time.sleep(1)
-count = 3
-for n in range(count):
-    count +=1
-print(count)
-# input_image_dir = "Image1"+"/"+ "Sample"+str(count)
-input_image_dir = "Image1"+"/"+ "Sample"+ str(count)
-# output_image_dir = "Result_Remove_Background1"+"/"+"Sample"+str(count)
-output_image_dir = "Result_Remove_Background1"+"/"+"Sample"+ str(count)
+
+
+input_image_dir = "Image_Original"
+output_image_dir = "Result_Remove_Background"
 
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_image_dir):
