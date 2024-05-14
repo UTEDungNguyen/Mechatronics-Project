@@ -75,7 +75,7 @@ class capture_img():
         if sensor == True:
             global count
             count += 1
-            folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image/"
+            folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
             # global img
