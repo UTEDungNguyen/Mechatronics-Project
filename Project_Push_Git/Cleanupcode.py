@@ -22,7 +22,7 @@ cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 segmentor = SelfiSegmentation()
 
 # Set the directory containing images and the directory to save the processed images
-input_image_dir = "Image"
+input_image_dir = "Image_Original"
 output_image_dir = "Result_Remove_Background"
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_image_dir):
@@ -47,7 +47,6 @@ else:
         # Save the processed image to the output directory
         output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
         cv2.imwrite(output_path, img_out)
-
 
 
 class DetectObject:
