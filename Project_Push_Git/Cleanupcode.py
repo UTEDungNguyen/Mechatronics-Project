@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 import math
+import os
+import imutils
 import cvzone
 from cvzone.SelfiSegmentationModule import SelfiSegmentation
-import os
-
 
 def empty(a):
     pass
@@ -47,6 +47,75 @@ else:
 if not os.path.exists(output_image_dir):
     os.makedirs(output_image_dir)
 
+
+class DetectObject:
+    def __init__(self):
+        self.segmentor = SelfiSegmentation()
+    
+    def remove_background(self, img):
+        return self.segmentor.removeBG(img, cutThreshold=0.85)
+
+    def get_contours(self, img, imgContour):
+        contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
+            areaMin = 1000 # Config area
+            if area > areaMin:
+                print("Area of object durian (pixel): ",area) 
+                cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
+                M = cv2.moments(cnt)
+                cx= int(M["m10"]/M["m00"])
+                cy= int(M["m01"]/M["m00"])  
+                
+                peri = cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, 0.02* peri, True) # 0.02
+                x, y, w, h = cv2.boundingRect(approx)
+                ellipse = cv2.fitEllipse(selected_contour)
+               
+                center = ellipse[0]
+                semi_majorAxis = (ellipse[1][0])/2
+                semi_minorAxis = (ellipse[1][1])/2
+                angle = ellipse[2]
+
+                area_elipse = math.pi * semi_majorAxis * semi_minorAxis
+                area_elipse = "{:.3f}".format(area_elipse)
+                area_elipse = float(area_elipse)
+                print("Area of the elipse classification (pixel):", area_elipse)
+
+                result_sub = area_elipse - area
+                result_percent = result_sub/area_elipse
+                result_percent = "{:.3f}".format(result_percent)
+                result_percent = float(result_percent)
+                print("Area of substraction (pixel): ",result_percent)
+                if (result_percent < 0.2): # 20% 
+                    print("Durian meet standards")
+                else:
+                    print("Durian does not meet standards")
+                
+                cv2.ellipse(img_detect_object, ellipse, (0, 255, 0), 3)
+                cv2.circle(img_detect_object,(cx,cy),7,(0,0,255),-1)
+                cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+
+class DetectDefect:
+    def sharpen_image_laplacian(self, image):
+        laplacian = cv2.Laplacian(image, cv2.CV_64F)
+        sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
+        return sharpened_image
+
+    def get_contours(self, img, imgContour):
+        contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
+            areaMin = 3000 # Config area
+            if area > areaMin:
+                cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
+                peri = cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
+                x, y, w, h = cv2.boundingRect(approx)
+                cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+
 def stackImages(scale, imgArray):
     rows = len(imgArray)
     cols = len(imgArray[0])
@@ -80,100 +149,34 @@ def stackImages(scale, imgArray):
         ver = hor
     return ver
 
-def getcoutours_ObjectDetect(img, imgContour):
-    #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-        areaMin = 1000 # Config area
-        if area > areaMin: 
-            print("Area of object durian (pixel): ",area) 
-            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
-            M = cv2.moments(cnt)
-            cx= int(M["m10"]/M["m00"])
-            cy= int(M["m01"]/M["m00"])  
-            
-            peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02* peri, True) # 0.02
-            x, y, w, h = cv2.boundingRect(approx)
-            ellipse = cv2.fitEllipse(selected_contour)
-           
-            # Unpack the array into separate variables
-            center = ellipse[0]
-            semi_majorAxis = (ellipse[1][0])/2
-            semi_minorAxis = (ellipse[1][1])/2
-            angle = ellipse[2]
-
-            # Caculate the elipse for classification durian
-            area_elipse =math.pi * semi_majorAxis * semi_minorAxis
-            area_elipse = "{:.3f}".format(area_elipse)
-            area_elipse = float(area_elipse)
-            print("Area of the elipse classification (pixel):", area_elipse)
-            # Classification Durian 
-            result_sub = area_elipse - area
-            # Convert the result of sub to perentage
-            result_percent = result_sub/area_elipse
-            result_percent = "{:.3f}".format(result_percent)
-            result_percent = float(result_percent)
-            print("Area of substraction (pixel): ",result_percent)
-            if (result_percent < 0.2) : # 20% 
-                 print("Durian meet standards")
-            else:
-                print("Durian does not meet standards")
-            
-            # Draw the elipse classification and object 
-            cv2.ellipse(img_detect_object, ellipse, (0, 255, 0), 3)
-            cv2.circle(img_detect_object,(cx,cy),7,(0,0,255),-1)
-            cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
-        
-def sharpen_image_laplacian(image):
-    laplacian = cv2.Laplacian(image, cv2.CV_64F)
-    sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
-    return sharpened_image  # Return the sharpened image
-
-def getcoutours_DefectDetect(img, imgContour):
-    #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-        areaMin = 3000 # Config area
-        if area > areaMin:
-            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
-            peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
-            x, y, w, h = cv2.boundingRect(approx)
-            cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+# Main program
+detect_object = DetectObject()
+detect_defect = DetectDefect()
 
 while True:
     image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result_Remove_Background\sample No.4_processed.jpg")
     image = cv2.resize(image,(400,300))
+
     # Divide input from image and processing in the Detect_Object class and Detect_Defect
     img_detect_object = image.copy()
     img_detect_defect = image.copy()
 
     # Classification the Object Detect Durian
     gray = cv2.cvtColor(img_detect_object, cv2.COLOR_BGR2GRAY)
-    # Warming threshold needed apdative
-    # Convert Binary Image using method threshold
     thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    # Erosion image to detect Object Elipse for Durian 
     kernel = np.ones((3,3),np.uint8)
-    output_morphology = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_OPEN,kernel)
-    output_erosion = cv2.erode(output_otsuthresh, kernel,iterations=2)
-    output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
-    boder =  output_dilate - output_erosion
-    # Detect Contour and measure the area durian object 
-    getcoutours_ObjectDetect(boder,img_detect_object)
-
+    output_morphology = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_OPEN, kernel)
+    output_erosion = cv2.erode(output_otsuthresh, kernel, iterations=2)
+    output_dilate = cv2.dilate(output_otsuthresh, kernel, iterations=4)
+    boder = output_dilate - output_erosion
+    detect_object.get_contours(boder, img_detect_object)
 
     # Detect Defect of Object in the surface
-    sharpened_image = sharpen_image_laplacian(img_detect_defect)
+    sharpened_image = detect_defect.sharpen_image_laplacian(img_detect_defect)
     rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
-    # Convert BGR to HSV 
-    HSV_img = cv2.cvtColor(rgb_img,cv2.COLOR_BGR2HSV)
-    # Set range for color and detect defect object using marks 
+    HSV_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
+
+   # Set range for color and detect defect object using marks 
     l_h = cv2.getTrackbarPos("LH", "Tracking")
     l_s = cv2.getTrackbarPos("LS", "Tracking")
     l_v = cv2.getTrackbarPos("LV", "Tracking")
@@ -196,8 +199,7 @@ while True:
     thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
     gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
     bitwise_img = cv2.bitwise_not(gray_image)
-    # Detect Contour of Defect in the surface 
-    getcoutours_DefectDetect(bitwise_img,img_detect_defect)
+    detect_defect.get_contours(bitwise_img,img_detect_defect)
 
     imgstack = stackImages(0.8, ([img_detect_object,img_detect_defect,bitwise_img], [mask,mask_dilate,res]))
     cv2.imshow("Result Image", imgstack)
