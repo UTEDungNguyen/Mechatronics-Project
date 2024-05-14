@@ -157,8 +157,8 @@ def getcoutours(img, imgContour):
 
 while True:
     # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.19_processed.jpg")
-    image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result Remove Background\sample No.4_processed.jpg")
+    # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
     # cv2.imshow('ajnsad', image)
     # image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
     image = cv2.resize(image,(400,300))

@@ -22,7 +22,7 @@ cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 segmentor = SelfiSegmentation()
 # Set the directory containing images and the directory to save the processed images
 input_image_dir = "Image"
-output_image_dir = "Result_Remove_Background"
+output_image_dir = "Result Remove Background"
 # List all image files in the directory
 image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
@@ -154,7 +154,7 @@ detect_object = DetectObject()
 detect_defect = DetectDefect()
 
 while True:
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result_Remove_Background\sample No.4_processed.jpg")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result Remove Background\sample No.4_processed.jpg")
     image = cv2.resize(image,(400,300))
 
     # Divide input from image and processing in the Detect_Object class and Detect_Defect
@@ -201,7 +201,7 @@ while True:
     bitwise_img = cv2.bitwise_not(gray_image)
     detect_defect.get_contours(bitwise_img,img_detect_defect)
 
-    imgstack = stackImages(0.8, ([img_detect_object,img_detect_defect,bitwise_img], [mask,mask_dilate,res]))
+    imgstack = stackImages(0.8, ([img_detect_object,boder,output_otsuthresh], [img_detect_defect,mask,res]))
     cv2.imshow("Result Image", imgstack)
     key = cv2.waitKey(1)
     if key == ord("q"):
