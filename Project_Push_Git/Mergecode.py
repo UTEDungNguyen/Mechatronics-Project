@@ -1,49 +1,30 @@
 import cv2
 import numpy as np
 import math
-# import rembg
-# from scipy.spatial import distance
-# from rembg import remove 
 from PIL import Image
 import imutils
 import cvzone
 from cvzone.SelfiSegmentationModule import SelfiSegmentation
 import os
 
-# import removebg
 
-# def sharpen_image_laplacian(image):
-#     laplacian = cv2.Laplacian(image, cv2.CV_64F)
-#     sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
-#     return sharpened_image  # Return the sharpened image
+def empty(a):
+    pass
+cv2.namedWindow("Tracking")
+cv2.resizeWindow("Tracking",640,240)
+cv2.createTrackbar("LH", "Tracking", 97, 255, empty) # 97
+cv2.createTrackbar("LS", "Tracking", 0, 255, empty)
+cv2.createTrackbar("LV", "Tracking", 0, 255, empty)
+cv2.createTrackbar("UH", "Tracking", 106, 255, empty)
+cv2.createTrackbar("US", "Tracking", 174, 255, empty)
+cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 
-# Path = '..\Project Push Git\Image'
-# Files = os.listdir(Path)
-# for File in Files : 
-#     imgPath = os.path.join(Path,File)
-#     print(imgPath)
-#     image = cv2.imread(imgPath)
-#     rm = File.rsplit('.', maxsplit=1)[0]
-#     #cv2.imshow("Image not Remove Background",image)
-#     # Remove Background and xoa bong den
-#     input_path =  Path + File
-#     output_path = 
-#     #input_img = Image.open(image)
-#     # output = remove(input_img)
-#     # output.save(out)   
-#     out = cv2.imwrite(f'../Project Push Git/Result Remove Background/rmbg_{File}',image)   # Write the image rm background in folder Result
-
-
+# Remove background to detect object image
 # Initialize the SelfiSegmentation module
 segmentor = SelfiSegmentation()
-
 # Set the directory containing images and the directory to save the processed images
 input_image_dir = "Image"
-output_image_dir = "Result Remove Background"
-# Create the output directory if it doesn't exist
-if not os.path.exists(output_image_dir):
-    os.makedirs(output_image_dir)
-
+output_image_dir = "Result_Remove_Background"
 # List all image files in the directory
 image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
@@ -63,6 +44,10 @@ else:
         # Save the processed image to the output directory
         output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
         cv2.imwrite(output_path, img_out)
+
+# Create the output directory if it doesn't exist
+if not os.path.exists(output_image_dir):
+    os.makedirs(output_image_dir)
 
 def stackImages(scale, imgArray):
     rows = len(imgArray)
@@ -97,21 +82,13 @@ def stackImages(scale, imgArray):
         ver = hor
     return ver
 
-
-def getcoutours(img, imgContour):
+def getcoutours_ObjectDetect(img, imgContour):
     #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
     for cnt in contours:
         area = cv2.contourArea(cnt)
         selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
         areaMin = 1000 # Config area
-
-        if area > areaMin:
-            print("Area of object durian (pixel): ",area)  
-        # print("Area of object durian (pixel): ",area)
-        selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-        areaMin = 1000 # Config area
-
         if area > areaMin: 
             print("Area of object durian (pixel): ",area) 
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
@@ -148,48 +125,85 @@ def getcoutours(img, imgContour):
                 print("Durian does not meet standards")
             
             # Draw the elipse classification and object 
-            cv2.ellipse(image, ellipse, (0, 255, 0), 3)
-            cv2.circle(image,(cx,cy),7,(0,0,255),-1)
+            cv2.ellipse(img_detect_object, ellipse, (0, 255, 0), 3)
+            cv2.circle(img_detect_object,(cx,cy),7,(0,0,255),-1)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
-            # cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
-            #             (0, 255, 0), 2)
-            
+        
+def sharpen_image_laplacian(image):
+    laplacian = cv2.Laplacian(image, cv2.CV_64F)
+    sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
+    return sharpened_image  # Return the sharpened image
+
+def getcoutours_DefectDetect(img, imgContour):
+    #_,contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierachy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
+        areaMin = 3000 # Config area
+        if area > areaMin:
+            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
+            peri = cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
+            x, y, w, h = cv2.boundingRect(approx)
+            cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
 while True:
-    # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-    image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Result Remove Background\sample No.19_processed.jpg")
-    image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
-    # cv2.imshow('ajnsad', image)
-    # image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
+    image = cv2.imread("D:\DATN\Mechatronics-Project\Project_Push_Git\Result_Remove_Background\sample No.16_processed.jpg")
     image = cv2.resize(image,(400,300))
+    # Divide input from image and processing in the Detect_Object class and Detect_Defect
+    img_detect_object = image.copy()
+    img_detect_defect = image.copy()
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Classification the Object Detect Durian
+    gray = cv2.cvtColor(img_detect_object, cv2.COLOR_BGR2GRAY)
     # Warming threshold needed apdative
-    # Convert Binary Image using 3 method
-    #thresh,  output_otsuthresh = cv2.threshold(gray,110, 255, cv2.THRESH_BINARY)    
+    # Convert Binary Image using method threshold
     thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    #output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
-    
     # Erosion image to detect Object Elipse for Durian 
     kernel = np.ones((3,3),np.uint8)
     output_morphology = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_OPEN,kernel)
     output_erosion = cv2.erode(output_otsuthresh, kernel,iterations=2)
     output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
-    
-    boder =  output_dilate - output_erosion 
+    boder =  output_dilate - output_erosion
     # Detect Contour and measure the area durian object 
-    getcoutours(boder,image)
-    imgstack = stackImages(0.8, ([image,boder, output_otsuthresh], [output_erosion,output_morphology,output_dilate]))
+    getcoutours_ObjectDetect(boder,img_detect_object)
 
-    #cv2.imshow("Binary Threshold (fixed)", output_binthresh)
-    # cv2.imshow("Image original",image)
-    # cv2.imshow("Binary Threshold (otsu)", output_otsuthresh)
-    # cv2.imshow("Adaptive Thresholding", output_adapthresh)
-    # cv2.imshow("Erosion", output_erosion)
+
+    # Detect Defect of Object in the surface
+    sharpened_image = sharpen_image_laplacian(img_detect_defect)
+    rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
+    # Convert BGR to HSV 
+    HSV_img = cv2.cvtColor(rgb_img,cv2.COLOR_BGR2HSV)
+    # Set range for red color and  
+    l_h = cv2.getTrackbarPos("LH", "Tracking")
+    l_s = cv2.getTrackbarPos("LS", "Tracking")
+    l_v = cv2.getTrackbarPos("LV", "Tracking")
+
+    u_h = cv2.getTrackbarPos("UH", "Tracking")
+    u_s = cv2.getTrackbarPos("US", "Tracking")
+    u_v = cv2.getTrackbarPos("UV", "Tracking")
+
+    l_b = np.array([l_h, l_s, l_v])
+    u_b = np.array([u_h, u_s, u_v])
+
+    mask = cv2.inRange(HSV_img, l_b, u_b)
+    # Morphological and Dilate
+    kernel = np.ones((5,5),np.uint8)
+    mask_morpho = cv2.morphologyEx(mask, cv2.MORPH_OPEN,kernel)
+    mask_dilate = cv2.dilate(mask_morpho, kernel,iterations=2)
+    res = cv2.bitwise_and(image,image, mask=mask_dilate)
+    # Warming threshold needed apdative 
+    # Detecting contours in image
+    thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
+    gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
+    bitwise_img = cv2.bitwise_not(gray_image)
+    # Detect Contour of Defect in the surface 
+    getcoutours_DefectDetect(bitwise_img,img_detect_defect)
+
+    imgstack = stackImages(0.8, ([img_detect_object,img_detect_defect,bitwise_img], [mask,mask_dilate,res]))
     cv2.imshow("Result Image", imgstack)
-
     key = cv2.waitKey(1)
     if key == ord("q"):
         break
 cv2.destroyAllWindows()
-

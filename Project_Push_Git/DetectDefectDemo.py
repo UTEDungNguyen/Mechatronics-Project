@@ -95,7 +95,6 @@ while True:
     mask_dilate = cv2.dilate(mask_morpho, kernel,iterations=2)
     res = cv2.bitwise_and(image,image, mask=mask_dilate)
 
-    #
     # Warming threshold needed apdative 
     # Detecting contours in image
     thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
