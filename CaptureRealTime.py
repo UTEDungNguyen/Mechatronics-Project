@@ -75,12 +75,12 @@ class capture_img():
         if sensor == True:
             global count
             count += 1
-            folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image/Sample" + str(count)
+            folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
             # global img
             # frame = img.copy()
-            cv2.imwrite(folder +"/"+"sample No."+str(count) +".JPG", frame)
+            cv2.imwrite(folder +"sample No."+str(count) +".JPG", frame)
             print('capture success......................')
             # time.sleep(1)
            
