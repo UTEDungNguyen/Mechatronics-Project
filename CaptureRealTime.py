@@ -6,8 +6,8 @@ import snap7.client as c
 import snap7
 import os
 # import PIL
-import PLCController
-from PLCController import PLC
+# import PLCController
+# from PLCController import PLC
 
 class IMG_Processing():
     def __init__(self):
@@ -67,22 +67,22 @@ class capture_img():
         pass
     
  
-    def capture(byte, bit, datatype):
-        global video
-        sensor=PLC.ReadMemory(byte,bit,datatype)
-        ret,frame = video.read()
-        print(f"sensor:{sensor}")
-        if sensor == True:
-            global count
-            count += 1
-            folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            # global img
-            # frame = img.copy()
-            cv2.imwrite(folder +"sample No."+str(count) +".JPG", frame)
-            print('capture success......................')
-            # time.sleep(1)
+    # def capture(byte, bit, datatype):
+    #     global video
+    #     # sensor=PLC.ReadMemory(byte,bit,datatype)
+    #     ret,frame = video.read()
+    #     print(f"sensor:{sensor}")
+    #     if sensor == True:
+    #         global count
+    #         count += 1
+    #         folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
+    #         if not os.path.exists(folder):
+    #             os.makedirs(folder)
+    #         # global img
+    #         # frame = img.copy()
+    #         cv2.imwrite(folder +"sample No."+str(count) +".JPG", frame)
+    #         print('capture success......................')
+    #         # time.sleep(1)
            
 ############################ TRACKBAR #########################################
 
@@ -113,26 +113,26 @@ while True:
     imgblur = cv2.GaussianBlur(img,(7,7),1)   
     gray = cv2.cvtColor(imgblur, cv2.COLOR_BGR2GRAY)
 
-    # threshold1 = cv2.getTrackbarPos("Thershold1","Parameters")
-    # threshold2 = cv2.getTrackbarPos("Thershold2","Parameters")
+    threshold1 = cv2.getTrackbarPos("Thershold1","Parameters")
+    threshold2 = cv2.getTrackbarPos("Thershold2","Parameters")
 
-    # imgCany = cv2.Canny(gray,threshold1,threshold2)
+    imgCany = cv2.Canny(gray,threshold1,threshold2)
     # Adapte threshold img no need Detect thresh Manual
     output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
     # Create the array 3x3 vailue 1
-    kernel = np.ones((3, 3), np.uint8)
+    # kernel = np.ones((3, 3), np.uint8)
     # Dilation the object 
-    imgDil = cv2.dilate(output_adapthresh,kernel,iterations=2)  #imgCany
-    opening = cv2.morphologyEx(imgDil,cv2.MORPH_OPEN,kernel, iterations=2)
-    IMG_Processing.getcoutours(imgDil,imgContour)
+    # imgDil = cv2.dilate(output_adapthresh,kernel,iterations=2)  #imgCany
+    # opening = cv2.morphologyEx(imgDil,cv2.MORPH_OPEN,kernel, iterations=2)
+    IMG_Processing.getcoutours(output_adapthresh,imgContour)
     # Show image 
-    imgstack = IMG_Processing.stackImages(0.8,([img,gray,output_adapthresh],
-                                [imgDil,imgContour,opening]))
+    imgstack = IMG_Processing.stackImages(0.8,([img,gray],
+                                [output_adapthresh,imgCany]))
 
 
     cv2.imshow("Result Camera",imgstack)
 
-    capture_img.capture(0,0,S7WLBit)
+    # capture_img.capture(0,0,S7WLBit)
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):

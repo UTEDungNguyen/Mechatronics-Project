@@ -103,7 +103,7 @@ class DetectDefect:
         for cnt in contours:
             area = cv2.contourArea(cnt)
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-            areaMin = 3000 # Config area
+            areaMin = 3000# Config area
             if area > areaMin:
                 cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
                 peri = cv2.arcLength(cnt, True)
@@ -160,7 +160,7 @@ while True:
     gray = cv2.cvtColor(img_detect_object, cv2.COLOR_BGR2GRAY)
     thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     kernel = np.ones((3,3),np.uint8)
-    output_morphology = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_OPEN, kernel)
+    # output_morphology = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_OPEN, kernel)
     output_erosion = cv2.erode(output_otsuthresh, kernel, iterations=2)
     output_dilate = cv2.dilate(output_otsuthresh, kernel, iterations=4)
     boder = output_dilate - output_erosion
