@@ -3,8 +3,8 @@ import numpy as np
 import math
 import os
 import imutils
-import cvzone
-from cvzone.SelfiSegmentationModule import SelfiSegmentation
+# import cvzone
+# from cvzone.SelfiSegmentationModule import SelfiSegmentation
 
 def empty(a):
     pass
@@ -19,34 +19,34 @@ cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 
 # Remove background to detect object image Custom folder
 # Initialize the SelfiSegmentation module
-segmentor = SelfiSegmentation()
+# segmentor = SelfiSegmentation()
 
 # Set the directory containing images and the directory to save the processed images
-input_image_dir = "Image_Original"
-output_image_dir = "Result_Remove_Background"
-# Create the output directory if it doesn't exist
-if not os.path.exists(output_image_dir):
-    os.makedirs(output_image_dir)
+# input_image_dir = "Image_Original"
+# output_image_dir = "Result_Remove_Background"
+# # Create the output directory if it doesn't exist
+# if not os.path.exists(output_image_dir):
+#     os.makedirs(output_image_dir)
 
-# List all image files in the directory
-image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
+# # List all image files in the directory
+# image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
-# Ensure there are images in the directory
-if not image_files:
-    print("No images found in the directory.")
-else:
-    # Process each image in the directory
-    for img_path in image_files:
-        # Read the image
-        img = cv2.imread(img_path)
-        # Perform background removal
-        img_out = segmentor.removeBG(img,cutThreshold=0.85)  # Adjust threshold as needed
-        # Get the filename (without extension) from the input image path
-        filename = os.path.splitext(os.path.basename(img_path))[0]
+# # Ensure there are images in the directory
+# if not image_files:
+#     print("No images found in the directory.")
+# else:
+#     # Process each image in the directory
+#     for img_path in image_files:
+#         # Read the image
+#         img = cv2.imread(img_path)
+#         # Perform background removal
+#         img_out = segmentor.removeBG(img,cutThreshold=0.85)  # Adjust threshold as needed
+#         # Get the filename (without extension) from the input image path
+#         filename = os.path.splitext(os.path.basename(img_path))[0]
 
-        # Save the processed image to the output directory
-        output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
-        cv2.imwrite(output_path, img_out)
+#         # Save the processed image to the output directory
+#         output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
+#         cv2.imwrite(output_path, img_out)
 
 
 class DetectObject:

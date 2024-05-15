@@ -6,63 +6,42 @@ import math
 # from rembg import remove 
 from PIL import Image
 import imutils
-import cvzone
-from cvzone.SelfiSegmentationModule import SelfiSegmentation
+# import cvzone
+# from cvzone.SelfiSegmentationModule import SelfiSegmentation
 import os
 
-# import removebg
-
-# def sharpen_image_laplacian(image):
-#     laplacian = cv2.Laplacian(image, cv2.CV_64F)
-#     sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
-#     return sharpened_image  # Return the sharpened image
-
-# Path = '..\Project Push Git\Image'
-# Files = os.listdir(Path)
-# for File in Files : 
-#     imgPath = os.path.join(Path,File)
-#     print(imgPath)
-#     image = cv2.imread(imgPath)
-#     rm = File.rsplit('.', maxsplit=1)[0]
-#     #cv2.imshow("Image not Remove Background",image)
-#     # Remove Background and xoa bong den
-#     input_path =  Path + File
-#     output_path = 
-#     #input_img = Image.open(image)
-#     # output = remove(input_img)
-#     # output.save(out)   
-#     out = cv2.imwrite(f'../Project Push Git/Result Remove Background/rmbg_{File}',image)   # Write the image rm background in folder Result
 
 
-# Initialize the SelfiSegmentation module
-segmentor = SelfiSegmentation()
 
-# Set the directory containing images and the directory to save the processed images
-input_image_dir = "Image"
-output_image_dir = "Result Remove Background"
-# Create the output directory if it doesn't exist
-if not os.path.exists(output_image_dir):
-    os.makedirs(output_image_dir)
+# # Initialize the SelfiSegmentation module
+# segmentor = SelfiSegmentation()
 
-# List all image files in the directory
-image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
+# # Set the directory containing images and the directory to save the processed images
+# input_image_dir = "Image"
+# output_image_dir = "Result Remove Background"
+# # Create the output directory if it doesn't exist
+# if not os.path.exists(output_image_dir):
+#     os.makedirs(output_image_dir)
 
-# Ensure there are images in the directory
-if not image_files:
-    print("No images found in the directory.")
-else:
-    # Process each image in the directory
-    for img_path in image_files:
-        # Read the image
-        img = cv2.imread(img_path)
-        # Perform background removal
-        img_out = segmentor.removeBG(img,cutThreshold=0.85)  # Adjust threshold as needed
-        # Get the filename (without extension) from the input image path
-        filename = os.path.splitext(os.path.basename(img_path))[0]
+# # List all image files in the directory
+# image_files = [os.path.join(input_image_dir, filename) for filename in os.listdir(input_image_dir) if filename.endswith(('.JPG', '.png', '.jpeg','.jpg'))]
 
-        # Save the processed image to the output directory
-        output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
-        cv2.imwrite(output_path, img_out)
+# # Ensure there are images in the directory
+# if not image_files:
+#     print("No images found in the directory.")
+# else:
+#     # Process each image in the directory
+#     for img_path in image_files:
+#         # Read the image
+#         img = cv2.imread(img_path)
+#         # Perform background removal
+#         img_out = segmentor.removeBG(img,cutThreshold=0.85)  # Adjust threshold as needed
+#         # Get the filename (without extension) from the input image path
+#         filename = os.path.splitext(os.path.basename(img_path))[0]
+
+#         # Save the processed image to the output directory
+#         output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
+#         cv2.imwrite(output_path, img_out)
 
 def stackImages(scale, imgArray):
     rows = len(imgArray)
@@ -143,9 +122,11 @@ def getcoutours(img, imgContour):
             result_percent = float(result_percent)
             print("Area of substraction (pixel): ",result_percent)
             if (result_percent < 0.2) : # 20% 
-                 print("Durian meet standards")
+                print("Durian meet standards")
+                meetStandard = True
             else:
                 print("Durian does not meet standards")
+                meetStandard = False
             
             # Draw the elipse classification and object 
             cv2.ellipse(image, ellipse, (0, 255, 0), 3)
@@ -153,6 +134,7 @@ def getcoutours(img, imgContour):
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
             # cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 40, y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7,
             #             (0, 255, 0), 2)
+            return meetStandard
             
 
 while True:
