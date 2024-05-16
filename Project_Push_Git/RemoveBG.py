@@ -7,8 +7,8 @@ from cvzone.SelfiSegmentationModule import SelfiSegmentation
 # Remove background to detect object image Custom folder
 # Initialize the SelfiSegmentation module
 segmentor = SelfiSegmentation()
-input_image_dir = "Image_Original"
-output_image_dir = "Result_Remove_Background_1"
+input_image_dir = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original"
+output_image_dir = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_RMBG"
 
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_image_dir):
@@ -30,5 +30,5 @@ while True:
         # Get the filename (without extension) from the input image path
         filename = os.path.splitext(os.path.basename(newest_file))[0]
         # Save the processed image to the output directory
-        output_path = os.path.join(output_image_dir, f"{filename}_processed.jpg")
+        output_path = os.path.join(output_image_dir, f"{filename}.jpg")
         cv2.imwrite(output_path, img_out)

@@ -3,6 +3,7 @@ import numpy as np
 import math
 import glob
 import os
+import time
 
 def empty(a):
     pass
@@ -111,7 +112,7 @@ class DetectDefect:
             list_area.append(area)
             #print(f"area defect:{list_area}")
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-            areaMin = 3000 # Config area
+            areaMin = 500 # Config area
             if area > areaMin:
                 cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
                 peri = cv2.arcLength(cnt, True)
@@ -121,7 +122,7 @@ class DetectDefect:
             #     Defect = True
             # else: Defect = False
         S = sorted(list_area,key=None,reverse=True)
-        print("S : ",S)
+        print("S : ",S[0])
         if S[0]< areaMin : 
             Defect = False
         else : 
@@ -162,17 +163,18 @@ class DetectDefect:
         thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
         gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
         bitwise_img = cv2.bitwise_not(gray_image)
+        # Detecting contours in image
+        resultDefect=self.RectangleContours(bitwise_img,image)
+        print(f"resultDefect:{resultDefect}")
 
-        imgstack = stackImages(0.8, ([image,mask_dilate], [mask,res]))
+        imgstack = stackImages(0.8, ([image,bitwise_img], [mask,res]))
         cv2.imshow("result",imgstack)
+
         while True:
             if cv2.waitKey(1) & 0xFF == ord('q'): 
                 break
         cv2.destroyAllWindows()
 
-        # Detecting contours in image
-        resultDefect=self.RectangleContours(bitwise_img,image)
-        print(f"resultDefect:{resultDefect}")
         return resultDefect
 
         
@@ -240,8 +242,21 @@ while True:
             print("DON'T HAVE ANY NEW FILE")
             pass
         else:
+            # print(f"path_file:{newest_image}")
+            path_file = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + newest_image
+            time.sleep(0.1)
+            image_original = cv2.imread(path_file)
 
-            image_original = cv2.imread(newest_image)
+            if image_original is None:
+                print("Don't have img")
+                break
+            # print(f"path_file:{path_file}")
+            # cv2.imshow('jasdasd',image_original)
+
+            # if cv2.waitKey(0):    
+            #     break
+            # cv2.destroyAllWindows()
+
             imgToDetectObject = image_original.copy()
             imgToDetectDefect = image_original.copy()
 

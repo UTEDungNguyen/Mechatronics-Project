@@ -17,6 +17,9 @@ from cvzone.SelfiSegmentationModule import SelfiSegmentation
 segmentor = SelfiSegmentation()
 newest_image_path =""
 
+count_capture =0
+count_Remove =0
+
 class IMG_Processing():
     def __init__(self):
         pass
@@ -82,14 +85,20 @@ class capture_img():
         ret,frame = video.read()
         print(f"sensor:{sensor}")
         if sensor == True:
-            global count
-            count += 1
+            global count_capture
+            global count_Remove
+            count_Remove = count_capture
+
+            print(f'count_capture: {count_capture}')
+            print(f'count_remove: {count_Remove}')
+            count_capture += 1
+            count_Remove +=1
             folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
             # global img
             # frame = img.copy()
-            newest_image_path =folder +"sample No."+str(count) +".JPG"
+            newest_image_path =folder +"sampleNo"+str(count_capture) +".JPG"
             cv2.imwrite(newest_image_path, frame)
             print('capture success......................')
             # time.sleep(1)
@@ -125,7 +134,7 @@ cv2.createTrackbar("Area","Parameters",5000,30000,empty)
 
 
 video = cv2.VideoCapture(0)
-count =0
+
 
 ############# set Frame image #####################
 framewidth = 640
@@ -133,7 +142,9 @@ frameheight = 480
 video.set(3,framewidth)
 video.set(4,frameheight)
 ####################################################
+# count_Remove=0
 while True: 
+    
     ret,img = video.read()
     imgContour = img.copy()
     imgblur = cv2.GaussianBlur(img,(7,7),1)   
@@ -159,13 +170,19 @@ while True:
     cv2.imshow("Result Camera",imgstack)
 
     capture_img.capture(3,6,S7WLBit)
+   
     file_path = os.listdir("Image_Original")
 
     if not file_path or newest_image_path =="":
         print('##################################################')
         pass
     else:
-        capture_img.removeBG()
+        if count_Remove == count_capture:
+                capture_img.removeBG()
+                count_Remove += 1
+                print(f'count_remove_while:{count_Remove}')
+        else: pass
+        
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
