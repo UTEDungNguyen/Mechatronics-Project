@@ -154,7 +154,7 @@ while True:
 
     cv2.imshow("Result Camera",imgstack)
 
-    capture_img.capture(0,0,S7WLBit)
+    # capture_img.capture(0,0,S7WLBit)
     capture_img.removeBG()
 
 
