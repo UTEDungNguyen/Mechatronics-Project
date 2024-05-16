@@ -104,10 +104,12 @@ class DetectDefect:
         return sharpened_image
 
     def RectangleContours(self, img, imgContour):
+        list_area = []
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            print(f"area:{area}")
+            list_area.append(area)
+            #print(f"area defect:{list_area}")
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
             areaMin = 3000 # Config area
             if area > areaMin:
@@ -116,11 +118,15 @@ class DetectDefect:
                 approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
                 x, y, w, h = cv2.boundingRect(approx)
                 cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
-                Defect = True
-            else: Defect = False
-        print(f"Defect:{Defect}")
+            #     Defect = True
+            # else: Defect = False
+        S = sorted(list_area,key=None,reverse=True)
+        print("S : ",S)
+        if S[0]< areaMin : 
+            Defect = False
+        else : 
+            Defect = True
         return Defect
-
     def getResultDefect(self,image):
 
         # image = cv2.imread(file_path)
@@ -242,9 +248,9 @@ while True:
             resultDefect=defect.getResultDefect(imgToDetectDefect)
             resultObject=object.getResultObject(imgToDetectObject)
 
-            imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
+            # imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
            
-            if resultObject == True & resultDefect == False:
+            if resultObject == True and resultDefect == False:
                 print("########################### Meet Standard ##############")
 
                 ############################## push image to firebase storages #############################
