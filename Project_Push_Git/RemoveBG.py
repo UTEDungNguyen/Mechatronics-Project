@@ -8,7 +8,7 @@ from cvzone.SelfiSegmentationModule import SelfiSegmentation
 # Initialize the SelfiSegmentation module
 segmentor = SelfiSegmentation()
 input_image_dir = "Image_Original"
-output_image_dir = "Result_Remove_Background_1"
+output_image_dir = "Image_RMGB"
 
 # Create the output directory if it doesn't exist
 if not os.path.exists(output_image_dir):
