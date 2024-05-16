@@ -2,6 +2,10 @@ import cv2
 import numpy as np
 
 import os
+import snap7
+from snap7.util import *
+from snap7.types import *
+import snap7.client as c
 
 import PLCController
 from PLCController import PLC
@@ -93,13 +97,13 @@ class capture_img():
 
     def removeBG():
         global newest_image_path
-        output_image_dir = "Project_Push_Git\Image_RMGB"
+        output_image_dir = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_RMBG"
         if not os.path.exists(output_image_dir):
             os.makedirs(output_image_dir)
 
         img = cv2.imread(newest_image_path)
         # Perform background removal
-        img_out = segmentor.removeBG(img,cutThreshold=0.85)  # Adjust threshold as needed
+        img_out = segmentor.removeBG(img,cutThreshold=0.8)  # Adjust threshold as needed
         # Get the filename (without extension) from the input image path
         filename = os.path.splitext(os.path.basename(newest_image_path))[0]
         # Save the processed image to the output directory
@@ -146,7 +150,7 @@ while True:
     # Dilation the object 
     # imgDil = cv2.dilate(output_adapthresh,kernel,iterations=2)  #imgCany
     # opening = cv2.morphologyEx(imgDil,cv2.MORPH_OPEN,kernel, iterations=2)
-    IMG_Processing.getcoutours(output_adapthresh,imgContour)
+    # IMG_Processing.getcoutours(output_adapthresh,imgContour)
     # Show image 
     imgstack = IMG_Processing.stackImages(0.8,([img,gray],
                                 [output_adapthresh,imgCany]))
@@ -154,8 +158,14 @@ while True:
 
     cv2.imshow("Result Camera",imgstack)
 
-    capture_img.capture(0,0,S7WLBit)
-    capture_img.removeBG()
+    capture_img.capture(3,6,S7WLBit)
+    file_path = os.listdir("Image_Original")
+
+    if not file_path or newest_image_path =="":
+        print('##################################################')
+        pass
+    else:
+        capture_img.removeBG()
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):

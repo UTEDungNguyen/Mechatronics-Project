@@ -61,11 +61,13 @@ class DetectObject:
                 cv2.ellipse(imgContour, ellipse, (0, 255, 0), 3)
                 cv2.circle(imgContour,(cx,cy),7,(0,0,255),-1)
                 cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+
+                print(f"meetStandard:{meetStandard}")
                 return meetStandard
 
-    def getResultObject(self,path_image):
+    def getResultObject(self,image):
         # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-        image = cv2.imread(path_image)
+        # image = cv2.imread(path_image)
         # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
         # cv2.imshow('ajnsad', image)
         # image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
@@ -88,12 +90,14 @@ class DetectObject:
         # Detect Contour and measure the area durian object 
         resultObject = self.ElipseContours(boder,image)
         # imgstack = stackImages(0.8, ([image,boder, output_otsuthresh], [output_erosion,output_morphology,output_dilate]))
-        
+        print(f"resultObject:{resultObject}")
         return resultObject
 
 
 
 class DetectDefect:
+    def __init__(self):
+        pass
     def sharpen_image_laplacian(self, image):
         laplacian = cv2.Laplacian(image, cv2.CV_64F)
         sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
@@ -103,6 +107,7 @@ class DetectDefect:
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
             area = cv2.contourArea(cnt)
+            print(f"area:{area}")
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
             areaMin = 3000 # Config area
             if area > areaMin:
@@ -113,11 +118,12 @@ class DetectDefect:
                 cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
                 Defect = True
             else: Defect = False
+        print(f"Defect:{Defect}")
         return Defect
 
-    def getResultDefect(self, file_path):
+    def getResultDefect(self,image):
 
-        image = cv2.imread(file_path)
+        # image = cv2.imread(file_path)
         sharpened_image = self.sharpen_image_laplacian(image)
         rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
 
@@ -151,11 +157,18 @@ class DetectDefect:
         gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
         bitwise_img = cv2.bitwise_not(gray_image)
 
+        imgstack = stackImages(0.8, ([image,mask_dilate], [mask,res]))
+        cv2.imshow("result",imgstack)
+        while True:
+            if cv2.waitKey(1) & 0xFF == ord('q'): 
+                break
+        cv2.destroyAllWindows()
+
         # Detecting contours in image
         resultDefect=self.RectangleContours(bitwise_img,image)
+        print(f"resultDefect:{resultDefect}")
         return resultDefect
 
-        # imgstack = stackImages(0.8, ([image,output_threshold,bitwise_img], [mask_dilate,mask,res]))
         
         
 
@@ -194,30 +207,43 @@ def stackImages(scale, imgArray):
 
 
 
-if __name__ == "__main__":
-    folder_IMG_RmBG = "Project_Push_Git\Image_RMGB"
-    while True:
-        # Define the pattern for image files (you can add more extensions if needed)
-        image_pattern = os.path.join(folder_IMG_RmBG, '*.[pjPJ][npNP][gG]')
+# def main():
+folder_IMG_RmBG = "Image_RMBG"
+defect = DetectDefect()
+object = DetectObject()
+while True:
+    list_path_RMBG=[]
+    # Define the pattern for image files (you can add more extensions if needed)
+    image_files = os.listdir(folder_IMG_RmBG)
+   
+    # Get a list of all image files in the directory
+   
 
-        # Get a list of all image files in the directory
-        image_files = glob.glob(image_pattern)
+    # Check if the list is empty
+    if not image_files:
+        print("FOLDER DON'T HAVE ANY IMAGE")
+        pass
 
-        # Check if the list is empty
-        if not image_files:
+    else:
+        for image_file in image_files :
+            path = os.path.join(folder_IMG_RmBG,image_file)
+            list_path_RMBG.append(path)
+    # Use the max function with a lambda to find the file with the latest modification time
+        newest_image = max(list_path_RMBG, key=os.path.getmtime)
+        if not newest_image:
+            print("DON'T HAVE ANY NEW FILE")
             pass
-
         else:
-        # Use the max function with a lambda to find the file with the latest modification time
-            newest_image = max(image_files, key=os.path.getmtime)
 
-            imgToDetectObject = cv2.imread(newest_image)
-            imgToDetectDefect = cv2.imread(newest_image)
+            image_original = cv2.imread(newest_image)
+            imgToDetectObject = image_original.copy()
+            imgToDetectDefect = image_original.copy()
 
-            resultDefect=DetectDefect.getResultDefect(imgToDetectDefect)
-            resultObject=DetectObject.getResultObject(imgToDetectObject)
+            resultDefect=defect.getResultDefect(imgToDetectDefect)
+            resultObject=object.getResultObject(imgToDetectObject)
 
-
+            imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
+           
             if resultObject == True & resultDefect == False:
                 print("########################### Meet Standard ##############")
 
@@ -229,4 +255,5 @@ if __name__ == "__main__":
             else :
                 print("########################### Not Meet Standard ##############")
 
-
+# if __name__ == '__main__':
+#     main()
