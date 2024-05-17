@@ -7,14 +7,39 @@ import time
 import PLCController
 from PLCController import PLC
 import DBconfig
-from DBconfig import firebase
+# from DBconfig import firebase
 from datetime import datetime
 import qrcode
+import snap7
+from snap7.util import *
+from snap7.types import *
+import snap7.client as c
+import pyrebase
+
+config = {
+    "apiKey": "AIzaSyCj8R0iJmoT-hlfETLGdTYxzk5VUQ9CLBw",
+    "authDomain": "mechatronic-project-af507.firebaseapp.com",
+    "databaseURL": "https://mechatronic-project-af507-default-rtdb.firebaseio.com",
+    "projectId": "mechatronic-project-af507",
+    "storageBucket": "mechatronic-project-af507.appspot.com",
+    "messagingSenderId": "782997268535",
+    "appId": "1:782997268535:web:0f36553a1637a1400977b2"
+    
+
+};
+
+
+firebase = pyrebase.initialize_app(config)
+
 storage = firebase.storage()
 database = firebase.database()
 
+Mass_Out = 0
+flag_object = False
+flag_defect = False
+flag_PLC = True
 
-
+MeetStandardIMGProcessing = False
 # Lấy ngày và giờ hiện tại
 current_datetime = datetime.now()
 
@@ -84,6 +109,7 @@ class DetectObject:
                 return meetStandard
 
     def getResultObject(self,image):
+        global flag_object
         # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
         # image = cv2.imread(path_image)
         # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
@@ -109,6 +135,7 @@ class DetectObject:
         resultObject = self.ElipseContours(boder,image)
         # imgstack = stackImages(0.8, ([image,boder, output_otsuthresh], [output_erosion,output_morphology,output_dilate]))
         print(f"resultObject:{resultObject}")
+        flag_object = True
         return resultObject
 
 
@@ -146,7 +173,7 @@ class DetectDefect:
             Defect = True
         return Defect
     def getResultDefect(self,image):
-
+        global flag_defect
         # image = cv2.imread(file_path)
         sharpened_image = self.sharpen_image_laplacian(image)
         rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
@@ -191,25 +218,37 @@ class DetectDefect:
         #     if cv2.waitKey(1) & 0xFF == ord('q'): 
         #         break
         # cv2.destroyAllWindows()
-
+        flag_defect = True
         return resultDefect
-
+class PLCVal():
+    
         
-def getWeightsSample():
-    # global count
-    global list_Weights
-    RL_chan = PLC.ReadMemory(3,1,S7WLBit)
-    RL_le = PLC.ReadMemory(3,2,S7WLBit)
-    if RL_chan == True and RL_le == False:
-        Mass_Out = PLC.ReadMemory(50,0,S7WLDWord)  ## MW50 , MW54
-        list_Weights.append(Mass_Out)
-        # count += 1
-    elif RL_chan == False and RL_le == True:
-        Mass_Out = PLC.ReadMemory(54,0,S7WLDWord)
-        list_Weights.append(Mass_Out)
-        # count = 0
-    return Mass_Out
+    def getWeightsSample(self):
+        # global count
+        global Mass_Out
+        RL_chan = PLC.ReadMemory(3,1,S7WLBit)
+        RL_le = PLC.ReadMemory(3,2,S7WLBit)
+        if RL_chan == True and RL_le == False:
+            Mass_Out = PLC.ReadMemory(50,0,S7WLWord)  ## MW50 , MW54
+            list_Weights.append(Mass_Out)
+            # count += 1
+        elif RL_chan == False and RL_le == True:
+            Mass_Out = PLC.ReadMemory(54,0,S7WLWord)
+            list_Weights.append(Mass_Out)
+            # count = 0
+        return Mass_Out
+    def getResult(self):
+        global flag_PLC
+        # RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
 
+
+        ############################################ GET VALUE LOADCELLS #############################
+        # if RL_getLoadcellValue == True:
+        SampleWeight = self.getWeightsSample()
+            # print(f"Weight : {SampleWeight}")
+            # print(f"Mass_Out : {SampleWeight}")
+        flag_PLC = False
+        return SampleWeight
 
 def qrConfig():
     global count
@@ -228,8 +267,9 @@ def qrConfig():
     qr.make(fit = True)
     img = qr.make_image(fill_color = 'black',
                         back_color = 'white')
-    path_save_qr ="/home/pi/Mechatronics_Project/Mechatronics-Project/Image_QR/" + "QR_Sample" + str(count) +".png"
+    path_save_qr ="image/" + "QR_Sample" + str(count) +".png"
     img.save(path_save_qr)
+    print("Successsssssssssssssss")
 def stackImages(scale, imgArray):
     rows = len(imgArray)
     cols = len(imgArray[0])
@@ -269,15 +309,29 @@ def stackImages(scale, imgArray):
 folder_IMG_RmBG = "Image_RMBG"
 defect = DetectDefect()
 object = DetectObject()
+PLC_val = PLCVal()
+
+count_img = 0
 while True:
-    RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
+    # RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
 
-
-    ############################################ GET VALUE LOADCELLS #############################
-    if RL_getLoadcellValue == True:
-        SampleWeight = getWeightsSample()
-        print(f"Mass_Out : {SampleWeight}")
-    else :pass 
+    sensor1 = PLC.ReadMemory(0,3,S7WLBit)
+    if sensor1 == True:
+        count_img =0
+    # print(f"Sensor1 :{sensor1}")
+    # if sensor1 == True:
+    #     flag_PLC == True 
+    #     print(' sjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+    # ########################################### GET VALUE LOADCELLS #############################
+    # if RL_getLoadcellValue == True and flag_PLC == True:
+    #     SampleWeight = PLC_val.getResult()
+        
+    #     print(f"Mass_Out : {SampleWeight}")
+    # else :pass 
+    SampleWeight = PLC_val.getWeightsSample()
+    
+    # print(f"flag_PLC:{flag_PLC}")
+    # print(f"RL_getLoadcellValue:{RL_getLoadcellValue}")
     ############################################ GET VALUE LOADCELLS #############################
 
     list_path_RMBG=[]
@@ -302,64 +356,75 @@ while True:
             print("DON'T HAVE ANY NEW FILE")
             pass
         else:
-            # print(f"path_file:{newest_image}")
-            path_file = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + newest_image
-            time.sleep(0.1)
-            image_original = cv2.imread(path_file)
+            count_img  += 1
+            if count_img  ==1 :
 
-            if image_original is None:
-                print("Don't have img")
-                break
+                # print(f"path_file:{newest_image}")
+                path_file = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + newest_image
+                time.sleep(0.1)
+                image_original = cv2.imread(path_file)
+
+                if image_original is None:
+                    print("Don't have img")
+                    break
+
+    ####################################### GET RESULT IMAGE PROCESSING #####################################
+
+                imgToDetectObject = image_original.copy()
+                imgToDetectDefect = image_original.copy()
+
+                resultDefect=defect.getResultDefect(imgToDetectDefect)
+                resultObject=object.getResultObject(imgToDetectObject)
+
+                # imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
+            
+                if resultObject == True and resultDefect == False:
+                    print("########################### Meet Standard IMG Processing ##############")
+                    MeetStandardIMGProcessing = True
+
+                    ############################## push image to firebase storages #############################
+
+
+                    #############################################################################################
+
+                else :
+                    print("########################### Not Meet Standard IMG Processing ##############")
+
 
 ####################################### GET RESULT IMAGE PROCESSING #####################################
 
-            imgToDetectObject = image_original.copy()
-            imgToDetectDefect = image_original.copy()
-
-            resultDefect=defect.getResultDefect(imgToDetectDefect)
-            resultObject=object.getResultObject(imgToDetectObject)
-
-            # imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
-           
-            if resultObject == True and resultDefect == False:
-                print("########################### Meet Standard IMG Processing ##############")
-                MeetStandardIMGProcessing = True
-
-                ############################## push image to firebase storages #############################
 
 
-                #############################################################################################
-
-            else :
-                print("########################### Not Meet Standard IMG Processing ##############")
-
-
-####################################### GET RESULT IMAGE PROCESSING #####################################
-
-
-
-
+    if flag_object == True and flag_defect == True:
+        print(f"Mass_Out : {SampleWeight}")
 
             ############################################ PUSH DATA TO DB SERVER #############################
             
-            if SampleWeight >1.8  and SampleWeight<5 and MeetStandardIMGProcessing == True:
-                count += 1
-                print("########################### Meet Standard Type 1 ##############")
-                database.child("Sample"+str(count))
-                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
-                database.set(data)
-                storage.child("Sample"+str(count)+".JPG").put(path_file)
-                qrConfig()
-            elif SampleWeight <1.8 or SampleWeight>5 and MeetStandardIMGProcessing == True:
-                count += 1
-                print("########################### Meet Standard Type 2 ##############")
-                database.child("Sample"+str(count))
-                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
-                database.set(data)
-                storage.child("Sample"+str(count)+".JPG").put(path_file)
-                qrConfig()
-            else : pass 
-    break
+        if SampleWeight >1800  and SampleWeight<5000 and MeetStandardIMGProcessing == True:
+            count += 1
+            print("########################### Meet Standard Type 1 ##############")
+            database.child("Sample"+str(count))
+            data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+            database.set(data)
+            storage.child("Sample"+str(count)+".JPG").put(path_file)
+            qrConfig()
+
+            flag_object = False
+            flag_defect = False
+        elif SampleWeight <1800 or SampleWeight>5000 and MeetStandardIMGProcessing == True:
+            count += 1
+            print("########################### Meet Standard Type 2 ##############")
+            database.child("Sample"+str(count))
+            data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+            database.set(data)
+            storage.child("Sample"+str(count)+".JPG").put(path_file)
+            qrConfig()
+            flag_object = False
+            flag_defect = False
+        else : pass 
+
+        
+    # break
 
             ############################################ PUSH DATA TO DB SERVER #############################
         # if __name__ == '__main__':
