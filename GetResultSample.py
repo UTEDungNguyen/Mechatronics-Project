@@ -9,7 +9,7 @@ from PLCController import PLC
 import DBconfig
 from DBconfig import firebase
 from datetime import datetime
-
+import qrcode
 storage = firebase.storage()
 database = firebase.database()
 
@@ -210,6 +210,26 @@ def getWeightsSample():
         # count = 0
     return Mass_Out
 
+
+def qrConfig():
+    global count
+    # Data to encode
+    data = "https://haviet12.github.io/UI_Durian-s_Infor/?custom_param=Sample" + str(count)
+    
+    # Creating an instance of QRCode class
+    qr = qrcode.QRCode(version = 1,
+                    error_correction = qrcode.constants.ERROR_CORRECT_L,
+                    box_size = 20,
+                    border = 2)
+    
+    # Adding data to the instance 'qr'
+    qr.add_data(data)
+    
+    qr.make(fit = True)
+    img = qr.make_image(fill_color = 'black',
+                        back_color = 'white')
+    path_save_qr ="/home/pi/Mechatronics_Project/Mechatronics-Project/Image_QR/" + "QR_Sample" + str(count) +".png"
+    img.save(path_save_qr)
 def stackImages(scale, imgArray):
     rows = len(imgArray)
     cols = len(imgArray[0])
@@ -329,6 +349,7 @@ while True:
                 data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
                 database.set(data)
                 storage.child("Sample"+str(count)+".JPG").put(path_file)
+                qrConfig()
             elif SampleWeight <1.8 or SampleWeight>5 and MeetStandardIMGProcessing == True:
                 count += 1
                 print("########################### Meet Standard Type 2 ##############")
@@ -336,6 +357,7 @@ while True:
                 data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
                 database.set(data)
                 storage.child("Sample"+str(count)+".JPG").put(path_file)
+                qrConfig()
             else : pass 
     break
 
