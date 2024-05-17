@@ -4,7 +4,24 @@ import math
 import glob
 import os
 import time
+import PLCController
+from PLCController import PLC
+import DBconfig
+from DBconfig import firebase
+from datetime import datetime
 
+storage = firebase.storage()
+database = firebase.database()
+
+
+
+# Lấy ngày và giờ hiện tại
+current_datetime = datetime.now()
+
+# Định dạng ngày tháng
+formatted_date = current_datetime.strftime("%Y-%m-%d")
+count = 0
+list_Weights = []
 def empty(a):
     pass
 cv2.namedWindow("Tracking")
@@ -167,18 +184,31 @@ class DetectDefect:
         resultDefect=self.RectangleContours(bitwise_img,image)
         print(f"resultDefect:{resultDefect}")
 
-        imgstack = stackImages(0.8, ([image,bitwise_img], [mask,res]))
-        cv2.imshow("result",imgstack)
+        # imgstack = stackImages(0.8, ([image,bitwise_img], [mask,res]))
+        # cv2.imshow("result",imgstack)
 
-        while True:
-            if cv2.waitKey(1) & 0xFF == ord('q'): 
-                break
-        cv2.destroyAllWindows()
+        # while True:
+        #     if cv2.waitKey(1) & 0xFF == ord('q'): 
+        #         break
+        # cv2.destroyAllWindows()
 
         return resultDefect
 
         
-        
+def getWeightsSample():
+    # global count
+    global list_Weights
+    RL_chan = PLC.ReadMemory(3,1,S7WLBit)
+    RL_le = PLC.ReadMemory(3,2,S7WLBit)
+    if RL_chan == True and RL_le == False:
+        Mass_Out = PLC.ReadMemory(50,0,S7WLDWord)  ## MW50 , MW54
+        list_Weights.append(Mass_Out)
+        # count += 1
+    elif RL_chan == False and RL_le == True:
+        Mass_Out = PLC.ReadMemory(54,0,S7WLDWord)
+        list_Weights.append(Mass_Out)
+        # count = 0
+    return Mass_Out
 
 def stackImages(scale, imgArray):
     rows = len(imgArray)
@@ -220,6 +250,16 @@ folder_IMG_RmBG = "Image_RMBG"
 defect = DetectDefect()
 object = DetectObject()
 while True:
+    RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
+
+
+    ############################################ GET VALUE LOADCELLS #############################
+    if RL_getLoadcellValue == True:
+        SampleWeight = getWeightsSample()
+        print(f"Mass_Out : {SampleWeight}")
+    else :pass 
+    ############################################ GET VALUE LOADCELLS #############################
+
     list_path_RMBG=[]
     # Define the pattern for image files (you can add more extensions if needed)
     image_files = os.listdir(folder_IMG_RmBG)
@@ -250,12 +290,8 @@ while True:
             if image_original is None:
                 print("Don't have img")
                 break
-            # print(f"path_file:{path_file}")
-            # cv2.imshow('jasdasd',image_original)
 
-            # if cv2.waitKey(0):    
-            #     break
-            # cv2.destroyAllWindows()
+####################################### GET RESULT IMAGE PROCESSING #####################################
 
             imgToDetectObject = image_original.copy()
             imgToDetectDefect = image_original.copy()
@@ -266,7 +302,8 @@ while True:
             # imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
            
             if resultObject == True and resultDefect == False:
-                print("########################### Meet Standard ##############")
+                print("########################### Meet Standard IMG Processing ##############")
+                MeetStandardIMGProcessing = True
 
                 ############################## push image to firebase storages #############################
 
@@ -274,7 +311,34 @@ while True:
                 #############################################################################################
 
             else :
-                print("########################### Not Meet Standard ##############")
+                print("########################### Not Meet Standard IMG Processing ##############")
 
-# if __name__ == '__main__':
+
+####################################### GET RESULT IMAGE PROCESSING #####################################
+
+
+
+
+
+            ############################################ PUSH DATA TO DB SERVER #############################
+            
+            if SampleWeight >1.8  and SampleWeight<5 and MeetStandardIMGProcessing == True:
+                count += 1
+                print("########################### Meet Standard Type 1 ##############")
+                database.child("Sample"+str(count))
+                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+                database.set(data)
+                storage.child("Sample"+str(count)+".JPG").put(path_file)
+            elif SampleWeight <1.8 or SampleWeight>5 and MeetStandardIMGProcessing == True:
+                count += 1
+                print("########################### Meet Standard Type 2 ##############")
+                database.child("Sample"+str(count))
+                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+                database.set(data)
+                storage.child("Sample"+str(count)+".JPG").put(path_file)
+            else : pass 
+    break
+
+            ############################################ PUSH DATA TO DB SERVER #############################
+        # if __name__ == '__main__':
 #     main()
