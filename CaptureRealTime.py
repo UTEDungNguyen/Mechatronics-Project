@@ -55,24 +55,6 @@ class IMG_Processing():
             ver = hor
         return ver
 
-
-
-    # def getcoutours(frame_gray,frame_countour):
-    #     contours,hierachy = cv2.findContours(frame_gray,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    #     for cnt in contours:
-    #         area = cv2.contourArea(cnt)
-    #         print(area)
-    #         areaMin = cv2.getTrackbarPos("Area","Parameters")
-    #         if area > areaMin: # nho cau hinh lai
-    #             cv2.drawContours(frame_countour,cnt,-1,(255,0,255),7) # 255,0,255 : mau tim
-    #             peri = cv2.arcLength(cnt,True)
-    #             approx = cv2.approxPolyDP(cnt,0.02*peri,True)
-    #             x,y,w,h = cv2.boundingRect(approx)
-    #             cv2.rectangle(frame_countour,(x,y),(x+w,y+h),(0,255,0),5) # 0,255,0 : mau xanh la cay
-    #             cv2.putText(frame_countour,"Area: "+ str(int(area)),(x+w+40,y+65),cv2.FONT_HERSHEY_COMPLEX,0.7,
-    #                         (0,255,0),2)
-
 class capture_img():
     def __init__(self) :
         pass
@@ -96,13 +78,9 @@ class capture_img():
             folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
-            # global img
-            # frame = img.copy()
             newest_image_path =folder +"sampleNo"+str(count_capture) +".JPG"
             cv2.imwrite(newest_image_path, frame)
             print('capture success......................')
-            # time.sleep(1)
-    
 
     def removeBG():
         global newest_image_path
@@ -119,22 +97,9 @@ class capture_img():
         output_path = os.path.join(output_image_dir, f"{filename}.jpg")
         cv2.imwrite(output_path, img_out)
 
-############################ TRACKBAR #########################################
-
-def empty(a):
-    pass
-cv2.namedWindow("Parameters")
-cv2.resizeWindow("Parameters",640,240)
-cv2.createTrackbar("Thershold1","Parameters",100,255,empty)
-cv2.createTrackbar("Thershold2","Parameters",60,255,empty)
-cv2.createTrackbar("Area","Parameters",5000,30000,empty)
-
-##################################################################################
-
-
+############################ CAPTURE #########################################
 
 video = cv2.VideoCapture(0)
-
 
 ############# set Frame image #####################
 framewidth = 640
@@ -142,7 +107,7 @@ frameheight = 480
 video.set(3,framewidth)
 video.set(4,frameheight)
 ####################################################
-# count_Remove=0
+
 while True: 
     
     ret,img = video.read()
@@ -150,23 +115,16 @@ while True:
     imgblur = cv2.GaussianBlur(img,(7,7),1)   
     gray = cv2.cvtColor(imgblur, cv2.COLOR_BGR2GRAY)
 
-    threshold1 = cv2.getTrackbarPos("Thershold1","Parameters")
-    threshold2 = cv2.getTrackbarPos("Thershold2","Parameters")
-
+    threshold1 = 100
+    threshold2 = 60
     imgCany = cv2.Canny(gray,threshold1,threshold2)
+
     # Adapte threshold img no need Detect thresh Manual
-    output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
-    # Create the array 3x3 vailue 1
-    # kernel = np.ones((3, 3), np.uint8)
-    # Dilation the object 
-    # imgDil = cv2.dilate(output_adapthresh,kernel,iterations=2)  #imgCany
-    # opening = cv2.morphologyEx(imgDil,cv2.MORPH_OPEN,kernel, iterations=2)
-    # IMG_Processing.getcoutours(output_adapthresh,imgContour)
+    output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0) 
+
     # Show image 
     imgstack = IMG_Processing.stackImages(0.8,([img,gray],
                                 [output_adapthresh,imgCany]))
-
-
     cv2.imshow("Result Camera",imgstack)
 
     capture_img.capture(3,6,S7WLBit)
@@ -181,16 +139,12 @@ while True:
                 capture_img.removeBG()
                 count_Remove += 1
                 print(f'count_remove_while:{count_Remove}')
-        else: pass
-        
-
-
+        else: pass      
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 video.release
 cv2.destroyAllWindows()
-# # while (True):
-# #     print(PLC.ReadMemory(0,0,S7WLBit))
+
 
 
 

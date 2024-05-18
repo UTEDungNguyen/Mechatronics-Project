@@ -51,14 +51,12 @@ def empty(a):
     pass
 cv2.namedWindow("Tracking")
 cv2.resizeWindow("Tracking",640,240)
-cv2.createTrackbar("LH", "Tracking", 97, 255, empty) # 97
+cv2.createTrackbar("LH", "Tracking", 97, 255, empty) 
 cv2.createTrackbar("LS", "Tracking", 0, 255, empty)
 cv2.createTrackbar("LV", "Tracking", 0, 255, empty)
 cv2.createTrackbar("UH", "Tracking", 106, 255, empty)
 cv2.createTrackbar("US", "Tracking", 174, 255, empty)
 cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
-
-
 
 
 class DetectObject:
@@ -67,7 +65,9 @@ class DetectObject:
         for cnt in contours:
             area = cv2.contourArea(cnt)
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-            areaMin = 1000 # Config area
+            # Config area to detect object value 
+            areaMin = 1000 
+
             if area > areaMin:
                 print("Area of object durian (pixel): ",area) 
                 cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
@@ -76,7 +76,7 @@ class DetectObject:
                 cy= int(M["m01"]/M["m00"])  
                 
                 peri = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, 0.02* peri, True) # 0.02
+                approx = cv2.approxPolyDP(cnt, 0.02* peri, True) 
                 x, y, w, h = cv2.boundingRect(approx)
                 ellipse = cv2.fitEllipse(selected_contour)
                
@@ -110,30 +110,20 @@ class DetectObject:
 
     def getResultObject(self,image):
         global flag_object
-        # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project Push Git/Result Remove Background/sample No.1.png")
-        # image = cv2.imread(path_image)
-        # image = cv2.imread("/home/pi/Mechatronics_Project/Mechatronics-Project/Project_Push_Git/Result Remove Background/sample No.4_processed.jpg")
-        # cv2.imshow('ajnsad', image)
-        # image = cv2.imread("D:\DATN\Mechatronics-Project\Project Push Git\Image\sample No.17.JPG")
         image = cv2.resize(image,(400,300))
-
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         # Warming threshold needed apdative
-        # Convert Binary Image using 3 method
-        #thresh,  output_otsuthresh = cv2.threshold(gray,110, 255, cv2.THRESH_BINARY)    
         thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-        #output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0)  #51
-        
+
         # Erosion image to detect Object Elipse for Durian 
         kernel = np.ones((3,3),np.uint8)
         
         output_erosion = cv2.erode(output_otsuthresh, kernel,iterations=2)
         output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
-        
         boder =  output_dilate - output_erosion 
         # Detect Contour and measure the area durian object 
         resultObject = self.ElipseContours(boder,image)
-        # imgstack = stackImages(0.8, ([image,boder, output_otsuthresh], [output_erosion,output_morphology,output_dilate]))
         print(f"resultObject:{resultObject}")
         flag_object = True
         return resultObject
@@ -154,17 +144,18 @@ class DetectDefect:
         for cnt in contours:
             area = cv2.contourArea(cnt)
             list_area.append(area)
-            #print(f"area defect:{list_area}")
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
-            areaMin = 500 # Config area
+
+            # Config area to detect defect of durian
+            areaMin = 500 
             if area > areaMin:
                 cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
                 peri = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  # 0.009
+                approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  
                 x, y, w, h = cv2.boundingRect(approx)
                 cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
-            #     Defect = True
-            # else: Defect = False
+
+
         S = sorted(list_area,key=None,reverse=True)
         print("S : ",S[0])
         if S[0]< areaMin : 
@@ -174,7 +165,6 @@ class DetectDefect:
         return Defect
     def getResultDefect(self,image):
         global flag_defect
-        # image = cv2.imread(file_path)
         sharpened_image = self.sharpen_image_laplacian(image)
         rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
 
@@ -198,11 +188,9 @@ class DetectDefect:
         # Morphological and Dilate
         kernel = np.ones((5,5),np.uint8)
         mask_morpho = cv2.morphologyEx(mask, cv2.MORPH_OPEN,kernel)
-
         mask_dilate = cv2.dilate(mask_morpho, kernel,iterations=2)
         res = cv2.bitwise_and(image,image, mask=mask_dilate)
 
-        # Warming threshold needed apdative 
         # Detecting contours in image
         thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
         gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
@@ -210,19 +198,12 @@ class DetectDefect:
         # Detecting contours in image
         resultDefect=self.RectangleContours(bitwise_img,image)
         print(f"resultDefect:{resultDefect}")
-
-        # imgstack = stackImages(0.8, ([image,bitwise_img], [mask,res]))
-        # cv2.imshow("result",imgstack)
-
-        # while True:
-        #     if cv2.waitKey(1) & 0xFF == ord('q'): 
-        #         break
-        # cv2.destroyAllWindows()
         flag_defect = True
         return resultDefect
-class PLCVal():
     
-        
+#  Innovate class and cofig again
+class PLCVal():
+     
     def getWeightsSample(self):
         # global count
         global Mass_Out
@@ -245,8 +226,6 @@ class PLCVal():
         ############################################ GET VALUE LOADCELLS #############################
         # if RL_getLoadcellValue == True:
         SampleWeight = self.getWeightsSample()
-            # print(f"Weight : {SampleWeight}")
-            # print(f"Mass_Out : {SampleWeight}")
         flag_PLC = False
         return SampleWeight
 
@@ -270,6 +249,7 @@ def qrConfig():
     path_save_qr ="Image_QR/" + "QR_Sample" + str(count) +".png"
     img.save(path_save_qr)
     print("Successsssssssssssssss")
+
 def stackImages(scale, imgArray):
     rows = len(imgArray)
     cols = len(imgArray[0])
@@ -303,9 +283,6 @@ def stackImages(scale, imgArray):
         ver = hor
     return ver
 
-
-
-# def main():
 folder_IMG_RmBG = "Image_RMBG"
 defect = DetectDefect()
 object = DetectObject()
@@ -339,8 +316,6 @@ while True:
     image_files = os.listdir(folder_IMG_RmBG)
    
     # Get a list of all image files in the directory
-   
-
     # Check if the list is empty
     if not image_files:
         print("FOLDER DON'T HAVE ANY IMAGE")
@@ -426,8 +401,3 @@ while True:
                 pass
 
         
-    # break
-
-            ############################################ PUSH DATA TO DB SERVER #############################
-        # if __name__ == '__main__':
-#     main()
