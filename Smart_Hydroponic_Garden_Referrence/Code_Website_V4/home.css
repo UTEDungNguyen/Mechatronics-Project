@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-repeat: no-repeat;
+  background: url(./image/background1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 0;
+}
+
+.main {
+  z-index: 1;
+  position: relative;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 2em;
+}
+
+.control {
+  background-color: white;
+  padding: 1em 2em;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn {
+  border: none;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: block;
+  margin: auto;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid rgb(40, 251, 93);
+  color: rgb(40, 251, 93);
+  font-weight: bold;
+  -webkit-box-shadow: 0px 9px 15px -11px rgb(40, 251, 93);
+  -moz-box-shadow: 0px 9px 15px -11px rgb(40, 251, 93);
+  box-shadow: 0px 9px 15px -11px rgb(40, 251, 93);
+}
+
+.btn:disabled {
+  background-color: #e3e2e2;
+  color: #bebebe;
+  border-color: #e3e2e2;
+  box-shadow: none;
+}
+
+.btn:hover {
+  color: #fff;
+  background: rgb(40, 251, 93);
+}
+
+.toggler-wrapper {
+  display: block;
+  width: 45px;
+  height: 25px;
+  cursor: pointer;
+  position: relative;
+  transform: scale(0.8);
+}
+
+.toggler-wrapper input[type="checkbox"] {
+  display: none;
+}
+
+.toggler-wrapper input[type="checkbox"]:checked + .toggler-slider {
+  background-color: #44cc66;
+}
+
+.toggler-wrapper .toggler-slider {
+  background-color: #ccc;
+  position: absolute;
+  border-radius: 100px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transition: all 300ms ease;
+  transition: all 300ms ease;
+}
+
+.toggler-wrapper .toggler-knob {
+  position: absolute;
+  -webkit-transition: all 300ms ease;
+  transition: all 300ms ease;
+}
+
+.toggler-wrapper.style-1
+  input[type="checkbox"]:checked
+  + .toggler-slider
+  .toggler-knob {
+  left: calc(100% - 19px - 3px);
+}
+
+.toggler-wrapper.style-1 .toggler-knob {
+  width: calc(25px - 6px);
+  height: calc(25px - 6px);
+  border-radius: 50%;
+  left: 3px;
+  top: 3px;
+  background-color: #fff;
+}
+
+.heading {
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+input[type="range"] {
+  flex: 1;
+}
+
+.inputForm {
+  display: flex;
+  align-items: center;
+  width: 300px;
+  gap: 8px;
+}
+
+.formLabel {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.checkboxAuto {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    padding: 80px 0 20px;
+    flex-direction: column;
+  }
+  .control {
+    padding: 1em 1em;
+  }
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biểu đồ đường từ Firebase</title>
+  <!-- Thêm các thư viện Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Địa điểm để hiển thị biểu đồ -->
+  <div style="width: 80%; margin: 0 auto;">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <!-- Script để lấy dữ liệu từ Firebase và vẽ biểu đồ -->
+  <script>
+    // Giả sử bạn đã cài đặt Firebase SDK và khởi tạo Firebase của bạn ở đây.
+    // Ví dụ:
+    // const firebaseConfig = {
+    //   apiKey: "your_api_key",
+    //   authDomain: "your_project_id.firebaseapp.com",
+    //   databaseURL: "https://your_project_id.firebaseio.com",
+    //   projectId: "your_project_id",
+    //   storageBucket: "your_project_id.appspot.com",
+    //   messagingSenderId: "your_messaging_sender_id",
+    //   appId: "your_app_id"
+    // };
+    // firebase.initializeApp(firebaseConfig);
+
+    // Hàm để lấy dữ liệu từ Firebase
+    function getDataFromFirebase() {
+      // Thực hiện các yêu cầu Firebase ở đây để lấy dữ liệu pH và thời gian
+      // Giả sử bạn đã lấy được dữ liệu và lưu trữ chúng trong các mảng như sau:
+      const times = ["11:00", "12:00", "13:00", "14:00"];
+      const pHValues = [6, 5.5, 7, 5];
+
+      // Trả về một đối tượng chứa các giá trị dữ liệu đã lấy từ Firebase
+      return { times, pHValues };
+    }
+
+    // Hàm để vẽ biểu đồ dựa vào dữ liệu từ Firebase
+    function drawChart() {
+      const data = getDataFromFirebase();
+
+      const ctx = document.getElementById("myChart").getContext("2d");
+
+      const myChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.times,
+          datasets: [{
+            label: "pH",
+            data: data.pHValues,
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    // Gọi hàm để vẽ biểu đồ khi trang đã tải xong
+    document.addEventListener("DOMContentLoaded", drawChart);
+  </script>
+</body>
+</html>

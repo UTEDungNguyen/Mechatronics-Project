@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - youtube.com/codingnepal -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+    <title>Login</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="login_style.css" />
+    <!-- <script src="login_script.js"></script> -->
+  </head>
+
+  <body>
+    <!-- <div class="center">
+      <h1>Login</h1>
+      <form onsubmit="login()" id="login">
+        <center id="error" style="color: red"></center>
+        <div class="txt_field">
+          <input type="text" id="user" required />
+          <label>Username</label>
+        </div>
+        <div class="txt_field">
+          <input type="password" id="pass" required />
+          <label>Password</label>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div> -->
+
+    <section class="login">
+      <div class="login_box">
+        <div class="left">
+          <div class="contact">
+            <form onsubmit="login()" id="login">
+              <h3>SIGN IN</h3>
+              <div class="txt_field">
+                <input type="text" id="user" required />
+                <label>Username</label>
+              </div>
+              <div class="txt_field">
+                <input type="password" id="pass" required />
+                <label>Password</label>
+              </div>
+              <!-- <input type="text" placeholder="USERNAME" />
+              <input type="text" placeholder="PASSWORD" /> -->
+              <button class="btn">SIGN IN</button>
+            </form>
+          </div>
+        </div>
+        <div class="right" />
+      </div>
+    </section>
+
+    <!-- <div class="sensor-data">
+      <h2>Temperature & Humidity</h2>
+      <div class="data">
+        <div class="sensor">
+          <span class="value" id="temperature">-</span>
+          <span class="unit">°C</span>
+        </div>
+        <div class="sensor">
+          <span class="value" id="humidity">-</span>
+          <span class="unit">%</span>
+        </div>
+      </div>
+    </div> -->
+
+    <script src="firebase.js"></script>
+    <script src="login_script.js"></script>
+  </body>
+</html>
