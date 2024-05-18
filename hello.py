@@ -7,7 +7,7 @@ while True:
     ret, frame = video_capture.read()
 
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2G    RAY)z
-  
+     
     cv2.imshow('Video', frame)                                                                                                                                                                                              
 
     if cv2.waitKey(1) & 0xFF == ord('q'):   
