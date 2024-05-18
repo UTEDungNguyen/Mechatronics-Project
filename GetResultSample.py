@@ -60,7 +60,7 @@ cv2.createTrackbar("UV", "Tracking", 255, 255, empty)
 
 
 class DetectObject:
-    def ElipseContours(self, img, imgContour):
+    def ElipseContours(self, img, imgContour_Object):
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
             area = cv2.contourArea(cnt)
@@ -70,7 +70,7 @@ class DetectObject:
 
             if area > areaMin:
                 print("Area of object durian (pixel): ",area) 
-                cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
+                cv2.drawContours(imgContour_Object, cnt, -1, (255, 0, 255), 7)
                 M = cv2.moments(cnt)
                 cx= int(M["m10"]/M["m00"])
                 cy= int(M["m01"]/M["m00"])  
@@ -101,12 +101,12 @@ class DetectObject:
                 else:
                     print("Durian does not meet standards")
                     meetStandard = False
-                cv2.ellipse(imgContour, ellipse, (0, 255, 0), 3)
-                cv2.circle(imgContour,(cx,cy),7,(0,0,255),-1)
-                cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+                cv2.ellipse(imgContour_Object, ellipse, (0, 255, 0), 3)
+                cv2.circle(imgContour_Object,(cx,cy),7,(0,0,255),-1)
+                cv2.rectangle(imgContour_Object, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
                 print(f"meetStandard:{meetStandard}")
-                return meetStandard
+                return meetStandard,imgContour_Object
 
     def getResultObject(self,image):
         global flag_object
@@ -122,10 +122,10 @@ class DetectObject:
         output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
         boder =  output_dilate - output_erosion 
         # Detect Contour and measure the area durian object 
-        resultObject = self.ElipseContours(boder,image)
+        resultObject,img_processed_object = self.ElipseContours(boder,image)
         print(f"resultObject:{resultObject}")
         flag_object = True
-        return resultObject
+        return resultObject,img_processed_object
 
 
 
@@ -137,7 +137,7 @@ class DetectDefect:
         sharpened_image = np.uint8(np.clip(image - 0.3*laplacian, 0, 255))
         return sharpened_image
 
-    def RectangleContours(self, img, imgContour):
+    def RectangleContours(self, img, imgContour_Defect):
         list_area = []
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
@@ -148,11 +148,11 @@ class DetectDefect:
             # Config area to detect defect of durian
             areaMin = 500 
             if area > areaMin:
-                cv2.drawContours(imgContour, cnt, -1, (255, 0, 255),5)
+                cv2.drawContours(imgContour_Defect, cnt, -1, (255, 0, 255),5)
                 peri = cv2.arcLength(cnt, True)
                 approx = cv2.approxPolyDP(cnt, 0.009* peri, True)  
                 x, y, w, h = cv2.boundingRect(approx)
-                cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+                cv2.rectangle(imgContour_Defect, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
 
         S = sorted(list_area,key=None,reverse=True)
@@ -161,7 +161,7 @@ class DetectDefect:
             Defect = False
         else : 
             Defect = True
-        return Defect
+        return Defect,imgContour_Defect
     def getResultDefect(self,image):
         global flag_defect
         sharpened_image = self.sharpen_image_laplacian(image)
@@ -195,10 +195,10 @@ class DetectDefect:
         gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
         bitwise_img = cv2.bitwise_not(gray_image)
         # Detecting contours in image
-        resultDefect=self.RectangleContours(bitwise_img,image)
+        resultDefect,img_processed_defect = self.RectangleContours(bitwise_img,image)
         print(f"resultDefect:{resultDefect}")
         flag_defect = True
-        return resultDefect
+        return resultDefect,img_processed_defect
     
 #  Innovate class and cofig again
 class PLCVal():
@@ -348,12 +348,13 @@ while True:
                 imgToDetectObject = image_original.copy()
                 imgToDetectDefect = image_original.copy()
 
-                resultDefect=defect.getResultDefect(imgToDetectDefect)
-                resultObject=object.getResultObject(imgToDetectObject)
+                resultDefect,img_processed_defect = defect.getResultDefect(imgToDetectDefect)
+                resultObject,img_processed_object = object.getResultObject(imgToDetectObject)
 
                 # SHOW THE IMAGE IN TERMINAL
-                imgstack = stackImages(0.8,([image_original,image_original],[object.getResultObject(imgToDetectObject),defect.getResultDefect(imgToDetectDefect)]))
+                imgstack = stackImages(0.8,([image_original,img_processed_defect,img_processed_object]))
                 cv2.imshow("The Image of the Project",imgstack)
+                
                 if resultObject == True and resultDefect == False:
                     print("########################### Meet Standard IMG Processing ##############")
                     MeetStandardIMGProcessing = True
