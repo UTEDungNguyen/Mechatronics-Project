@@ -352,7 +352,7 @@ while True:
                 resultObject=object.getResultObject(imgToDetectObject)
 
                 # SHOW THE IMAGE IN TERMINAL
-                imgstack = stackImages(0.8,([image_original,image_original],[object.getResultObject(image_original),defect.getResultDefect(image_original)]))
+                imgstack = stackImages(0.8,([image_original,image_original],[object.getResultObject(imgToDetectObject),defect.getResultDefect(imgToDetectDefect)]))
                 cv2.imshow("The Image of the Project",imgstack)
                 if resultObject == True and resultDefect == False:
                     print("########################### Meet Standard IMG Processing ##############")
