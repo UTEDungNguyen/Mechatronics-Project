@@ -81,5 +81,5 @@ if __name__ == "__main__":
     time.sleep(2)
     #WriteMemory(plc, 0, 0, S7WLBit, 0)
     #print('Done')
-    #print(ReadMemory(plc, 100, 0, S7WLWord))
+    print(ReadMemory(plc, 20, 0, S7WLDWord))
     main()
