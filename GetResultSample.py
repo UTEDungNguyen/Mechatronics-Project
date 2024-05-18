@@ -118,7 +118,6 @@ class DetectObject:
 
         # Erosion image to detect Object Elipse for Durian 
         kernel = np.ones((3,3),np.uint8)
-        
         output_erosion = cv2.erode(output_otsuthresh, kernel,iterations=2)
         output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
         boder =  output_dilate - output_erosion 
@@ -336,7 +335,6 @@ while True:
             count_img  += 1
             if count_img  ==1 :
 
-                # print(f"path_file:{newest_image}")
                 path_file = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + newest_image
                 time.sleep(0.1)
                 image_original = cv2.imread(path_file)
@@ -353,8 +351,12 @@ while True:
                 resultDefect=defect.getResultDefect(imgToDetectDefect)
                 resultObject=object.getResultObject(imgToDetectObject)
 
-                # imgstack = stackImages(0.8,([image_original,image_original],[res,mark]))
-            
+                # SHOW THE IMAGE IN TERMINAL
+                imgstack = stackImages(0.8,([image_original,image_original],[object.getResultObject(image_original),defect.getResultDefect(image_original)]))
+                cv2.imshow("The Image of the Project",imgstack)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    cv2.destroyAllWindows()
+                    
                 if resultObject == True and resultDefect == False:
                     print("########################### Meet Standard IMG Processing ##############")
                     MeetStandardIMGProcessing = True

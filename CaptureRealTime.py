@@ -123,8 +123,7 @@ while True:
     output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0) 
 
     # Show image 
-    imgstack = IMG_Processing.stackImages(0.8,([img,gray],
-                                [output_adapthresh,imgCany]))
+    imgstack = IMG_Processing.stackImages(0.8,([img],[output_adapthresh]))
     cv2.imshow("Result Camera",imgstack)
 
     capture_img.capture(3,6,S7WLBit)
