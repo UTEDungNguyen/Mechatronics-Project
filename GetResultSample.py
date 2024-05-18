@@ -267,7 +267,7 @@ def qrConfig():
     qr.make(fit = True)
     img = qr.make_image(fill_color = 'black',
                         back_color = 'white')
-    path_save_qr ="image/" + "QR_Sample" + str(count) +".png"
+    path_save_qr ="Image_QR/" + "QR_Sample" + str(count) +".png"
     img.save(path_save_qr)
     print("Successsssssssssssssss")
 def stackImages(scale, imgArray):
@@ -313,7 +313,7 @@ PLC_val = PLCVal()
 
 count_img = 0
 while True:
-    # RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
+    RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
 
     sensor1 = PLC.ReadMemory(0,3,S7WLBit)
     if sensor1 == True:
@@ -323,12 +323,12 @@ while True:
     #     flag_PLC == True 
     #     print(' sjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
     # ########################################### GET VALUE LOADCELLS #############################
-    # if RL_getLoadcellValue == True and flag_PLC == True:
+    if RL_getLoadcellValue == True :
     #     SampleWeight = PLC_val.getResult()
         
     #     print(f"Mass_Out : {SampleWeight}")
     # else :pass 
-    SampleWeight = PLC_val.getWeightsSample()
+        SampleWeight = PLC_val.getWeightsSample()
     
     # print(f"flag_PLC:{flag_PLC}")
     # print(f"RL_getLoadcellValue:{RL_getLoadcellValue}")
@@ -352,6 +352,8 @@ while True:
             list_path_RMBG.append(path)
     # Use the max function with a lambda to find the file with the latest modification time
         newest_image = max(list_path_RMBG, key=os.path.getmtime)
+        origin_img = newest_image.split('/')
+        origin_img_path = "Image_Original/" +origin_img[1]
         if not newest_image:
             print("DON'T HAVE ANY NEW FILE")
             pass
@@ -382,11 +384,7 @@ while True:
                     print("########################### Meet Standard IMG Processing ##############")
                     MeetStandardIMGProcessing = True
 
-                    ############################## push image to firebase storages #############################
-
-
-                    #############################################################################################
-
+                    
                 else :
                     print("########################### Not Meet Standard IMG Processing ##############")
 
@@ -397,31 +395,35 @@ while True:
 
     if flag_object == True and flag_defect == True:
         print(f"Mass_Out : {SampleWeight}")
+        path_original_img = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + origin_img_path
+      
+        if MeetStandardIMGProcessing == True:
+            if SampleWeight >1800  and SampleWeight<5000 :
+                count += 1
+                print("########################### Meet Standard Type 1 ##############")
+                database.child("Sample"+str(count))
+                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+                database.set(data)
+                print("PUSH DATA SUCCESSFUL")
+                storage.child("Sample"+str(count)+".JPG").put(path_original_img)
+                qrConfig()
 
-            ############################################ PUSH DATA TO DB SERVER #############################
-            
-        if SampleWeight >1800  and SampleWeight<5000 and MeetStandardIMGProcessing == True:
-            count += 1
-            print("########################### Meet Standard Type 1 ##############")
-            database.child("Sample"+str(count))
-            data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
-            database.set(data)
-            storage.child("Sample"+str(count)+".JPG").put(path_file)
-            qrConfig()
-
-            flag_object = False
-            flag_defect = False
-        elif SampleWeight <1800 or SampleWeight>5000 and MeetStandardIMGProcessing == True:
-            count += 1
-            print("########################### Meet Standard Type 2 ##############")
-            database.child("Sample"+str(count))
-            data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
-            database.set(data)
-            storage.child("Sample"+str(count)+".JPG").put(path_file)
-            qrConfig()
-            flag_object = False
-            flag_defect = False
-        else : pass 
+                flag_object = False
+                flag_defect = False
+            elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
+                count += 1
+                print("########################### Meet Standard Type 2 ##############")
+                database.child("Sample"+str(count))
+                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+                database.set(data)
+                print("PUSH DATA SUCCESSFUL")
+                storage.child("Sample"+str(count)+".JPG").put(path_original_img)
+                qrConfig()
+                flag_object = False
+                flag_defect = False
+        elif  MeetStandardIMGProcessing == False:
+                print(" SAMPLE NOT MEET STANDARD")
+                pass
 
         
     # break
