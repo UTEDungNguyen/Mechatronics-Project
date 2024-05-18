@@ -25,7 +25,9 @@ database = firebase.database()
 a = 15
 print (a)
 database.child("Test_Data")
-data = {"key1": a}
+# data = {"key1": a}
+data = {"Weight": 1222, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": 1712833}
+            # database.set(data)
 database.set(data)
 data_get = database.child("Test_Data").get().val()
 
@@ -41,3 +43,4 @@ with open('firebase_data_read.json', 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
 print("Data has been exported to firebase_data.json.")
+
