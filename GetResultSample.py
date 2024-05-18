@@ -354,6 +354,7 @@ while True:
                 # SHOW THE IMAGE IN TERMINAL
                 imgstack = stackImages(0.8,([image_original,img_processed_defect,img_processed_object]))
                 cv2.imshow("The Image of the Project",imgstack)
+                cv2.waitKey(0) 
                 
                 if resultObject == True and resultDefect == False:
                     print("########################### Meet Standard IMG Processing ##############")
