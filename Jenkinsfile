@@ -91,20 +91,19 @@ node
         stage('Execution Process Durian Classification') {
             dir('Mechatronics-Project') 
             {
-                // stage('DCMotor Executing')
-                // {
-                //     sh "nohup sudo python3 ControlDCMotor.py &"
-                // }
+                stage('DCMotor Executing')
+                {
+                    sh "nohup sudo python3 ControlDCMotor.py &"
+                }
 
-                // stage('Image Processing Executing')
-                // {
-                //     sh "python3 GetResultSample.py"
-                // }  
+                stage('Image Processing Executing')
+                {
+                    sh "nohup python3 GetResultSample.py &"
+                }  
 
                 stage('Capture Image Executing')
                 {
-                    sh "sudo pip3 install cvzone"
-                    sh "python3 CaptureRealTime.py"
+                    sh "nohup python3 CaptureRealTime.py &"
                 }
             }
         }
