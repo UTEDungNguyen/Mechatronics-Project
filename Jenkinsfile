@@ -93,17 +93,17 @@ node
             {
                 stage('DCMotor Executing')
                 {
-                    sh "python3 ControlDCMotor.py"
+                    sh "sudo python3 ControlDCMotor.py"
                 }
 
                 stage('Image Processing Executing')
                 {
-                    sh "python3 GetResultSample.py"
+                    sh "sudo python3 GetResultSample.py"
                 }  
 
                 stage('Capture Image Executing')
                 {
-                    sh "python3 CaptureRealTime.py"
+                    sh "sudo python3 CaptureRealTime.py"
                 }
             }
         }
