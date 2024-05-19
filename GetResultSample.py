@@ -38,6 +38,7 @@ Mass_Out = 0
 flag_object = False
 flag_defect = False
 flag_PLC = True
+doneGetWeight = False
 
 MeetStandardIMGProcessing = False
 # Lấy ngày và giờ hiện tại
@@ -105,7 +106,8 @@ class DetectObject:
                 cv2.circle(imgContour_Object,(cx,cy),7,(0,0,255),-1)
                 cv2.rectangle(imgContour_Object, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
-                print(f"meetStandard:{meetStandard}")
+                print(f"#####################\nGet result OBJECT DONE \n resultOBJECT:{meetStandard}\n #####################")
+
                 return meetStandard,imgContour_Object
 
     def getResultObject(self,image):
@@ -123,7 +125,7 @@ class DetectObject:
         boder =  output_dilate - output_erosion 
         # Detect Contour and measure the area durian object 
         resultObject,img_processed_object = self.ElipseContours(boder,image)
-        print(f"resultObject:{resultObject}")
+        # print(f"resultObject:{resultObject}")
         flag_object = True
         return resultObject,img_processed_object
 
@@ -161,6 +163,7 @@ class DetectDefect:
             Defect = False
         else : 
             Defect = True
+        
         return Defect,imgContour_Defect
     def getResultDefect(self,image):
         global flag_defect
@@ -196,16 +199,18 @@ class DetectDefect:
         bitwise_img = cv2.bitwise_not(gray_image)
         # Detecting contours in image
         resultDefect,img_processed_defect = self.RectangleContours(bitwise_img,image)
-        print(f"resultDefect:{resultDefect}")
+        print(f"#####################\nGet result DEFECT DONE \n resultDefect:{resultDefect}\n #####################")
         flag_defect = True
         return resultDefect,img_processed_defect
     
 #  Innovate class and cofig again
-class PLCVal():
+class PLCVal:
      
     def getWeightsSample(self):
         # global count
         global Mass_Out
+        
+        global flag_PLC
         RL_chan = PLC.ReadMemory(3,1,S7WLBit)
         RL_le = PLC.ReadMemory(3,2,S7WLBit)
         if RL_chan == True and RL_le == False:
@@ -216,17 +221,11 @@ class PLCVal():
             Mass_Out = PLC.ReadMemory(54,0,S7WLWord)
             list_Weights.append(Mass_Out)
             # count = 0
-        return Mass_Out
-    def getResult(self):
-        global flag_PLC
-        # RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
-
-
-        ############################################ GET VALUE LOADCELLS #############################
-        # if RL_getLoadcellValue == True:
-        SampleWeight = self.getWeightsSample()
         flag_PLC = False
-        return SampleWeight
+        doneGetWeight = True
+        print(" DONE GET WEIGHT")
+        # time.sleep(5)
+        return Mass_Out
 
 def qrConfig():
     global count
@@ -289,23 +288,23 @@ PLC_val = PLCVal()
 
 count_img = 0
 while True:
+
     RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
 
     sensor1 = PLC.ReadMemory(0,3,S7WLBit)
     if sensor1 == True:
+        print("LOOP NO")
+        print(f'#################### \n Sensor 1 is TRUE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n ##############################')
         count_img =0
-    # print(f"Sensor1 :{sensor1}")
-    # if sensor1 == True:
-    #     flag_PLC == True 
-    #     print(' sjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+        flag_PLC = True 
+    elif sensor1 ==False:
+        print(f'#################### \n Sensor 1 is FALSE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n ##############################')
+
     # ########################################### GET VALUE LOADCELLS #############################
-    if RL_getLoadcellValue == True :
-    #     SampleWeight = PLC_val.getResult()
-        
-    #     print(f"Mass_Out : {SampleWeight}")
-    # else :pass 
+    if RL_getLoadcellValue == True and flag_PLC == True:
+
         SampleWeight = PLC_val.getWeightsSample()
-    
+        # flag_PLC = False
     # print(f"flag_PLC:{flag_PLC}")
     # print(f"RL_getLoadcellValue:{RL_getLoadcellValue}")
     ############################################ GET VALUE LOADCELLS #############################
@@ -317,7 +316,7 @@ while True:
     # Get a list of all image files in the directory
     # Check if the list is empty
     if not image_files:
-        print("FOLDER DON'T HAVE ANY IMAGE")
+        # print("FOLDER DON'T HAVE ANY IMAGE")
         pass
 
     else:
@@ -329,7 +328,7 @@ while True:
         origin_img = newest_image.split('/')
         origin_img_path = "Image_Original/" +origin_img[1]
         if not newest_image:
-            print("DON'T HAVE ANY NEW FILE")
+            # print("DON'T HAVE ANY NEW FILE")
             pass
         else:
             count_img  += 1
@@ -340,7 +339,7 @@ while True:
                 image_original = cv2.imread(path_file)
 
                 if image_original is None:
-                    print("Don't have img")
+                    # print("Don't have img")
                     break
 
     ####################################### GET RESULT IMAGE PROCESSING #####################################
@@ -353,8 +352,8 @@ while True:
 
                 # SHOW THE IMAGE IN TERMINAL
                 imgstack = stackImages(0.8,([image_original,img_processed_defect,img_processed_object]))
-                cv2.imshow("The Image of the Project",imgstack)
-                cv2.waitKey(0) 
+                # cv2.imshow("The Image of the Project",imgstack)
+                # cv2.waitKey(0) 
                 
                 if resultObject == True and resultDefect == False:
                     print("########################### Meet Standard IMG Processing ##############")
@@ -362,14 +361,16 @@ while True:
 
                     
                 else :
+                    MeetStandardIMGProcessing = False
                     print("########################### Not Meet Standard IMG Processing ##############")
 
 
 ####################################### GET RESULT IMAGE PROCESSING #####################################
 
 
-
-    if flag_object == True and flag_defect == True:
+    # print(f"flag_object: {flag_object}")
+    # print(f"flag_defect: {flag_defect}")
+    if flag_object == True and flag_defect == True and doneGetWeight == True:
         print(f"Mass_Out : {SampleWeight}")
         path_original_img = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + origin_img_path
       
@@ -386,6 +387,7 @@ while True:
 
                 flag_object = False
                 flag_defect = False
+                doneGetWeight = False
             elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
                 count += 1
                 print("########################### Meet Standard Type 2 ##############")
@@ -397,8 +399,9 @@ while True:
                 qrConfig()
                 flag_object = False
                 flag_defect = False
+                doneGetWeight = False
         elif  MeetStandardIMGProcessing == False:
                 print(" SAMPLE NOT MEET STANDARD")
                 pass
-
-        
+        cv2.imshow("The Image of the Project",imgstack)
+        cv2.waitKey(0) 

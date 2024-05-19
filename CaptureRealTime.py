@@ -84,18 +84,22 @@ class capture_img():
 
     def removeBG():
         global newest_image_path
+        output_remove2 ="/home/pi/Mechatronics_Project/Mechatronics-Project/REMOVE_2"
         output_image_dir = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_RMBG"
         if not os.path.exists(output_image_dir):
             os.makedirs(output_image_dir)
 
         img = cv2.imread(newest_image_path)
         # Perform background removal
-        img_out = segmentor.removeBG(img,cutThreshold=0.8)  # Adjust threshold as needed
+        img_out = segmentor.removeBG(img,cutThreshold=0.75)  # Adjust threshold as needed
+        # img_out =segmentor.removeBG(img_out,cutThreshold=0.75)
         # Get the filename (without extension) from the input image path
         filename = os.path.splitext(os.path.basename(newest_image_path))[0]
         # Save the processed image to the output directory
         output_path = os.path.join(output_image_dir, f"{filename}.jpg")
+        output_path2 = os.path.join(output_remove2, f"{filename}.jpg")
         cv2.imwrite(output_path, img_out)
+        cv2.imwrite(output_path2, img_out)
 
 ############################ CAPTURE #########################################
 
