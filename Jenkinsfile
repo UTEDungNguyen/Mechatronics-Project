@@ -1,8 +1,36 @@
 // Script Pipeline
 node ('master')
-{
+{                   
     try 
     {
+        stage('Check Process of Python3 Execution')
+        {   
+            echo "Check process of Python3"
+            echo "================================"
+            sh "ps aux | grep python3"
+        }
+
+        stage('Kill All Process Define')
+        {
+            stage('Kill Control DC Motor Process')
+            {
+                echo "Kill Control DCMotor Process"
+                sh "sudo pkill -f ControlDCMotor.py"
+            }
+
+            stage('Kill Get Result of Durian Process')
+            {
+                echo "Kill Get Result Process"
+                sh "sudo pkill -f GetResultSample.py"
+            }
+
+            stage('Kill Capture Image Process')
+            {
+                echo "Kill CApture Image Process"
+                sh "sudo pkill -f CaptureRealTime.py"
+            }
+        }
+
         stage('Delete All File in Jenkins Local')
         {   
             echo "Delete Folder in Jenkins Local"
