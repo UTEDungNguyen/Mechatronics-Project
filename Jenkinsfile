@@ -98,7 +98,7 @@ node
 
                 stage('Image Processing Executing')
                 {
-                    sh "python3 GetResultSample.py"
+                    sh "python3.7 GetResultSample.py"
                 }  
 
                 stage('Capture Image Executing')
