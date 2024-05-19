@@ -96,10 +96,10 @@ node
                 //     sh "nohup sudo python3 ControlDCMotor.py &"
                 // }
 
-                stage('Image Processing Executing')
-                {
-                    sh "python3.7 GetResultSample.py"
-                }  
+                // stage('Image Processing Executing')
+                // {
+                //     sh "python3 GetResultSample.py"
+                // }  
 
                 stage('Capture Image Executing')
                 {
