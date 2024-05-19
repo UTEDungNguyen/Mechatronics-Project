@@ -94,6 +94,8 @@ node
                 stage('DCMotor Executing')
                 {
                     sh "nohup sudo python3 ControlDCMotor.py &"
+                    sh "nohup python3 GetResultSample.py &"
+                    sh "nohup python3 CaptureRealTime.py &"
                 }
 
                 stage('Image Processing Executing')
