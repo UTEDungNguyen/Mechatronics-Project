@@ -1,5 +1,5 @@
 // Script Pipeline
-node ('master')
+node
 {                   
     try 
     {
