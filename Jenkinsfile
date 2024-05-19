@@ -98,12 +98,12 @@ node
 
                 stage('Image Processing Executing')
                 {
-                    sh "nohup python3 GetResultSample.py &"
+                    sh "python3 GetResultSample.py"
                 }  
 
                 stage('Capture Image Executing')
                 {
-                    sh "nohup python3 CaptureRealTime.py &"
+                    sh "python3 CaptureRealTime.py"
                 }
             }
         }
