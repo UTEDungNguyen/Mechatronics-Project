@@ -403,5 +403,11 @@ while True:
         elif  MeetStandardIMGProcessing == False:
                 print(" SAMPLE NOT MEET STANDARD")
                 pass
-        cv2.imshow("The Image of the Project",imgstack)
-        cv2.waitKey(0) 
+        
+        dirname = 'Result'
+        os.mkdir(dirname)
+        file_name = "Result\The_Image_of_the_Project.jpg"
+        # cv2.imwrite(file_name,imgstack)
+        cv2.imwrite(os.path.join(dirname, file_name),imgstack)
+
+        
