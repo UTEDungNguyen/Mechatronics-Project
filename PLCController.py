@@ -2,6 +2,7 @@ from snap7.util import *
 from snap7.types import *
 import snap7.client as c
 import snap7
+import qrcode
 
 
 ip = '192.168.0.1'
