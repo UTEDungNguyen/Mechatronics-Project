@@ -103,6 +103,7 @@ node
 
                 stage('Capture Image Executing')
                 {
+                    sh "sudo pip3 install cvzone"
                     sh "python3 CaptureRealTime.py"
                 }
             }
