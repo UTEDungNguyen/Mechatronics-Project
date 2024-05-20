@@ -249,9 +249,7 @@ class PLCVal:
         print(f" DONE GET WEIGHT\n done het weight: {doneGetWeight} ")
        
 =======
-        # RL_getLoadcellValue = False
         print(f" DONE GET WEIGHT\n done het weight: {doneGetWeight} ")
-        # time.sleep(5)
 >>>>>>> 4a78413743a73e245f0b7548bb60bbb0581bab6f
         return Mass_Out
 
@@ -294,7 +292,6 @@ def moveImage(image_path,path_folder):
 
 =======
 
-
 def moveImage(image_path,path_folder):
     if not os.path.exists(path_folder):
         os.makedirs(path_folder)
@@ -307,7 +304,7 @@ def moveImage(image_path,path_folder):
     
     # Move the file
     shutil.move(image_path, dest_path)
-    # print(f"Moved '{src_path}' to '{dest_path}'")
+    
 def stackImages(scale, imgArray):
     rows = len(imgArray)
     cols = len(imgArray[0])
@@ -391,10 +388,7 @@ while True:
         if not newest_image:
             
             pass
-        # if sensor2 == False:
-        #     pass
         else:
-            # time.sleep(0.1)
             count_img  += 1
             if count_img  ==1 :
 
@@ -415,11 +409,6 @@ while True:
 <<<<<<< HEAD
 =======
 
-                # SHOW THE IMAGE IN TERMINAL
-                # imgstack = stackImages(0.8,([image_original,img_processed_defect,img_processed_object]))
-                # cv2.imshow("The Image of the Project",imgstack)
-                # cv2.waitKey(0) 
-                # show image 
 >>>>>>> 4a78413743a73e245f0b7548bb60bbb0581bab6f
                 
                 if resultObject == True and resultDefect == False:
@@ -461,7 +450,7 @@ while True:
                 doneGetWeight = False
 <<<<<<< HEAD
 =======
-                # time.sleep(5)
+                
 >>>>>>> 4a78413743a73e245f0b7548bb60bbb0581bab6f
 
             elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
@@ -479,7 +468,7 @@ while True:
                 doneGetWeight = False      
 =======
                 doneGetWeight = False
-                # time.sleep(5)
+               
 >>>>>>> 4a78413743a73e245f0b7548bb60bbb0581bab6f
 
         elif  MeetStandardIMGProcessing == False:
@@ -492,7 +481,7 @@ while True:
 <<<<<<< HEAD
             
 =======
-                # pass
+               
 >>>>>>> 4a78413743a73e245f0b7548bb60bbb0581bab6f
         moveImage(path_file,folder_dest)
                 
