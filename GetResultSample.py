@@ -7,7 +7,7 @@ import time
 import PLCController
 from PLCController import PLC
 import DBconfig
-# from DBconfig import firebase
+from DBconfig import firebase
 from datetime import datetime
 import qrcode
 import snap7
@@ -15,21 +15,8 @@ from snap7.util import *
 from snap7.types import *
 import snap7.client as c
 import pyrebase
+import shutil
 
-config = {
-    "apiKey": "AIzaSyCj8R0iJmoT-hlfETLGdTYxzk5VUQ9CLBw",
-    "authDomain": "mechatronic-project-af507.firebaseapp.com",
-    "databaseURL": "https://mechatronic-project-af507-default-rtdb.firebaseio.com",
-    "projectId": "mechatronic-project-af507",
-    "storageBucket": "mechatronic-project-af507.appspot.com",
-    "messagingSenderId": "782997268535",
-    "appId": "1:782997268535:web:0f36553a1637a1400977b2"
-    
-
-};
-
-
-firebase = pyrebase.initialize_app(config)
 
 storage = firebase.storage()
 database = firebase.database()
@@ -39,6 +26,7 @@ flag_object = False
 flag_defect = False
 flag_PLC = True
 doneGetWeight = False
+RL_getLoadcellValue = False
 
 MeetStandardIMGProcessing = False
 # Lấy ngày và giờ hiện tại
@@ -70,7 +58,6 @@ class DetectObject:
             areaMin = 1000 
 
             if area > areaMin:
-                print("Area of object durian (pixel): ",area) 
                 cv2.drawContours(imgContour_Object, cnt, -1, (255, 0, 255), 7)
                 M = cv2.moments(cnt)
                 cx= int(M["m10"]/M["m00"])
@@ -89,29 +76,26 @@ class DetectObject:
                 area_elipse = math.pi * semi_majorAxis * semi_minorAxis
                 area_elipse = "{:.3f}".format(area_elipse)
                 area_elipse = float(area_elipse)
-                print("Area of the elipse classification (pixel):", area_elipse)
-
                 result_sub = area_elipse - area
                 result_percent = result_sub/area_elipse
                 result_percent = "{:.3f}".format(result_percent)
                 result_percent = float(result_percent)
-                print("Area of substraction (pixel): ",result_percent)
                 if (result_percent < 0.2): # 20% 
-                    print("Durian meet standards")
+                   
                     meetStandard = True
                 else:
-                    print("Durian does not meet standards")
                     meetStandard = False
                 cv2.ellipse(imgContour_Object, ellipse, (0, 255, 0), 3)
                 cv2.circle(imgContour_Object,(cx,cy),7,(0,0,255),-1)
                 cv2.rectangle(imgContour_Object, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
-                print(f"#####################\nGet result OBJECT DONE \n resultOBJECT:{meetStandard}\n #####################")
+                print(f"\nGet result OBJECT DONE \n resultOBJECT:{meetStandard}\n")
 
                 return meetStandard,imgContour_Object
 
-    def getResultObject(self,image):
+    def getResultObject(self,image,folder_object):
         global flag_object
+        global count
         image = cv2.resize(image,(400,300))
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -125,11 +109,13 @@ class DetectObject:
         boder =  output_dilate - output_erosion 
         # Detect Contour and measure the area durian object 
         resultObject,img_processed_object = self.ElipseContours(boder,image)
-        # print(f"resultObject:{resultObject}")
+        
         flag_object = True
+        if not os.path.exists(folder_object):
+            os.makedirs(folder_object)
+        newest_image_path =folder_object +"ResultObject_NO"+str(count) +".JPG"
+        cv2.imwrite(newest_image_path, img_processed_object)
         return resultObject,img_processed_object
-
-
 
 class DetectDefect:
     def __init__(self):
@@ -158,14 +144,13 @@ class DetectDefect:
 
 
         S = sorted(list_area,key=None,reverse=True)
-        print("S : ",S[0])
         if S[0]< areaMin : 
             Defect = False
         else : 
             Defect = True
         
         return Defect,imgContour_Defect
-    def getResultDefect(self,image):
+    def getResultDefect(self,image, folder_defect):
         global flag_defect
         sharpened_image = self.sharpen_image_laplacian(image)
         rgb_img = cv2.cvtColor(sharpened_image, cv2.COLOR_BGR2RGB)
@@ -199,8 +184,12 @@ class DetectDefect:
         bitwise_img = cv2.bitwise_not(gray_image)
         # Detecting contours in image
         resultDefect,img_processed_defect = self.RectangleContours(bitwise_img,image)
-        print(f"#####################\nGet result DEFECT DONE \n resultDefect:{resultDefect}\n #####################")
+        print(f"\nGet result DEFECT DONE \n resultDefect:{resultDefect}\n")
         flag_defect = True
+        if not os.path.exists(folder_defect):
+            os.makedirs(folder_defect)
+        newest_image_path =folder_defect +"ResultDefect_NO"+str(count) +".JPG"
+        cv2.imwrite(newest_image_path, img_processed_defect)
         return resultDefect,img_processed_defect
     
 #  Innovate class and cofig again
@@ -209,22 +198,24 @@ class PLCVal:
     def getWeightsSample(self):
         # global count
         global Mass_Out
-        
+        global doneGetWeight
         global flag_PLC
+        global RL_getLoadcellValue
         RL_chan = PLC.ReadMemory(3,1,S7WLBit)
         RL_le = PLC.ReadMemory(3,2,S7WLBit)
         if RL_chan == True and RL_le == False:
-            Mass_Out = PLC.ReadMemory(50,0,S7WLWord)  ## MW50 , MW54
+            Mass_Out = PLC.ReadMemory(50,0,S7WLWord)  
             list_Weights.append(Mass_Out)
-            # count += 1
+        
         elif RL_chan == False and RL_le == True:
             Mass_Out = PLC.ReadMemory(54,0,S7WLWord)
             list_Weights.append(Mass_Out)
-            # count = 0
+           
         flag_PLC = False
         doneGetWeight = True
-        print(" DONE GET WEIGHT")
-        # time.sleep(5)
+        
+        print(f" DONE GET WEIGHT\n done het weight: {doneGetWeight} ")
+       
         return Mass_Out
 
 def qrConfig():
@@ -246,42 +237,28 @@ def qrConfig():
                         back_color = 'white')
     path_save_qr ="Image_QR/" + "QR_Sample" + str(count) +".png"
     img.save(path_save_qr)
-    print("Successsssssssssssssss")
+    # print("Successsssssssssssssss")
 
-def stackImages(scale, imgArray):
-    rows = len(imgArray)
-    cols = len(imgArray[0])
-    rowsAvailable = isinstance(imgArray[0], list)
-    width = imgArray[0][0].shape[1]
-    height = imgArray[0][0].shape[0]
-    if rowsAvailable:
-        for x in range(0, rows):
-            for y in range(0, cols):
-                if imgArray[x][y].shape[:2] == imgArray[0][0].shape[:2]:
-                    imgArray[x][y] = cv2.resize(imgArray[x][y], (0, 0), None, scale, scale)
-                else:
-                    imgArray[x][y] = cv2.resize(imgArray[x][y], (imgArray[0][0].shape[1], imgArray[0][0].shape[0]), None, scale, scale)
-                if len(imgArray[x][y].shape) == 2: 
-                    imgArray[x][y] = cv2.cvtColor(imgArray[x][y], cv2.COLOR_GRAY2BGR)
-        imageBlank = np.zeros((height, width, 3), np.uint8)
-        hor = [imageBlank] * rows
-        hor_con = [imageBlank] * rows
-        for x in range(0, rows):
-            hor[x] = np.hstack(imgArray[x])
-        ver = np.vstack(hor)
-    else:
-        for x in range(0, rows):
-            if imgArray[x].shape[:2] == imgArray[0].shape[:2]:
-                imgArray[x] = cv2.resize(imgArray[x], (0, 0), None, scale, scale)
-            else:
-                imgArray[x] = cv2.resize(imgArray[x], (imgArray[0].shape[1], imgArray[0].shape[0]), None, scale, scale)
-            if len(imgArray[x].shape) == 2: 
-                imgArray[x] = cv2.cvtColor(imgArray[x], cv2.COLOR_GRAY2BGR)
-        hor = np.hstack(imgArray)
-        ver = hor
-    return ver
+
+def moveImage(image_path,path_folder):
+    if not os.path.exists(path_folder):
+        os.makedirs(path_folder)
+    
+    # Get the file name from the source path
+    file_name = os.path.basename(image_path)
+    
+    # Create the full path for the destination file
+    dest_path = os.path.join(path_folder, file_name)
+    
+    # Move the file
+    shutil.move(image_path, dest_path)
+    
+
 
 folder_IMG_RmBG = "Image_RMBG"
+folder_dest ="Image_Backup"
+folder_object_result ="Object_Result/"
+folder_defect_result ="Defect_Result/"
 defect = DetectDefect()
 object = DetectObject()
 PLC_val = PLCVal()
@@ -292,22 +269,19 @@ while True:
     RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
 
     sensor1 = PLC.ReadMemory(0,3,S7WLBit)
+    sensor2 = PLC.ReadMemory(3,6,S7WLBit)
     if sensor1 == True:
         print("LOOP NO")
-        print(f'#################### \n Sensor 1 is TRUE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n ##############################')
+        print(f'\n Sensor 1 is TRUE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n')
         count_img =0
         flag_PLC = True 
     elif sensor1 ==False:
-        print(f'#################### \n Sensor 1 is FALSE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n ##############################')
+        print(f'\n Sensor 1 is FALSE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n')
 
-    # ########################################### GET VALUE LOADCELLS #############################
     if RL_getLoadcellValue == True and flag_PLC == True:
 
         SampleWeight = PLC_val.getWeightsSample()
-        # flag_PLC = False
-    # print(f"flag_PLC:{flag_PLC}")
-    # print(f"RL_getLoadcellValue:{RL_getLoadcellValue}")
-    ############################################ GET VALUE LOADCELLS #############################
+   
 
     list_path_RMBG=[]
     # Define the pattern for image files (you can add more extensions if needed)
@@ -316,7 +290,7 @@ while True:
     # Get a list of all image files in the directory
     # Check if the list is empty
     if not image_files:
-        # print("FOLDER DON'T HAVE ANY IMAGE")
+    
         pass
 
     else:
@@ -328,7 +302,7 @@ while True:
         origin_img = newest_image.split('/')
         origin_img_path = "Image_Original/" +origin_img[1]
         if not newest_image:
-            # print("DON'T HAVE ANY NEW FILE")
+            
             pass
         else:
             count_img  += 1
@@ -339,7 +313,6 @@ while True:
                 image_original = cv2.imread(path_file)
 
                 if image_original is None:
-                    # print("Don't have img")
                     break
 
     ####################################### GET RESULT IMAGE PROCESSING #####################################
@@ -347,29 +320,23 @@ while True:
                 imgToDetectObject = image_original.copy()
                 imgToDetectDefect = image_original.copy()
 
-                resultDefect,img_processed_defect = defect.getResultDefect(imgToDetectDefect)
-                resultObject,img_processed_object = object.getResultObject(imgToDetectObject)
-
-                # SHOW THE IMAGE IN TERMINAL
-                imgstack = stackImages(0.8,([image_original,img_processed_defect,img_processed_object]))
-                # cv2.imshow("The Image of the Project",imgstack)
-                # cv2.waitKey(0) 
+                resultDefect,img_processed_defect = defect.getResultDefect(imgToDetectDefect,folder_defect_result)
+                resultObject,img_processed_object = object.getResultObject(imgToDetectObject,folder_object_result)
                 
                 if resultObject == True and resultDefect == False:
-                    print("########################### Meet Standard IMG Processing ##############")
+                    print("Meet Standard IMG Processing")
                     MeetStandardIMGProcessing = True
 
                     
                 else :
                     MeetStandardIMGProcessing = False
-                    print("########################### Not Meet Standard IMG Processing ##############")
+                    print("Not Meet Standard IMG Processing")
 
 
 ####################################### GET RESULT IMAGE PROCESSING #####################################
-
-
-    # print(f"flag_object: {flag_object}")
-    # print(f"flag_defect: {flag_defect}")
+    print(f"flag_object: {flag_object}")
+    print(f"flag_defect: {flag_defect}")
+    print(f"doneGetWeight: {doneGetWeight}")
     if flag_object == True and flag_defect == True and doneGetWeight == True:
         print(f"Mass_Out : {SampleWeight}")
         path_original_img = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + origin_img_path
@@ -377,7 +344,7 @@ while True:
         if MeetStandardIMGProcessing == True:
             if SampleWeight >1800  and SampleWeight<5000 :
                 count += 1
-                print("########################### Meet Standard Type 1 ##############")
+                print(" Meet Standard Type 1 ")
                 database.child("Sample"+str(count))
                 data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
                 database.set(data)
@@ -388,9 +355,10 @@ while True:
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+
             elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
                 count += 1
-                print("########################### Meet Standard Type 2 ##############")
+                print(" Meet Standard Type 2")
                 database.child("Sample"+str(count))
                 data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
                 database.set(data)
@@ -399,15 +367,21 @@ while True:
                 qrConfig()
                 flag_object = False
                 flag_defect = False
-                doneGetWeight = False
+                doneGetWeight = False      
+
         elif  MeetStandardIMGProcessing == False:
+                print(f"Mass_Out : {SampleWeight}")
                 print(" SAMPLE NOT MEET STANDARD")
-                pass
+                flag_object = False
+                flag_defect = False
+                doneGetWeight = False
+                time.sleep(5)
+            
+        moveImage(path_file,folder_dest)
+                
         
-        dirname = 'Result'
-        os.mkdir(dirname)
-        file_name = "Result\The_Image_of_the_Project.jpg"
-        # cv2.imwrite(file_name,imgstack)
-        cv2.imwrite(os.path.join(dirname, file_name),imgstack)
+                
+        
+       
 
         
