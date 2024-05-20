@@ -3,107 +3,111 @@ node
 {                   
     try 
     {
-        stage('Check Process of Python3 Execution')
-        {   
-            echo "Check process of Python3"
-            echo "================================"
-            sh "ps aux | grep python3"
-        }
-
-        stage('Kill All Process Define')
+        dir('/home/pi/jenkins_home/workspace/Mechatronics_Jenkins')
         {
-            stage('Kill Control DC Motor Process')
-            {
-                echo "Kill Control DCMotor Process"
-                sh "sudo pkill -f ControlDCMotor.py"
-            }
-
-            stage('Kill Get Result of Durian Process')
-            {
-                echo "Kill Get Result Process"
-                sh "sudo pkill -f GetResultSample.py"
-            }
-
-            stage('Kill Capture Image Process')
-            {
-                echo "Kill CApture Image Process"
-                sh "sudo pkill -f CaptureRealTime.py"
-            }
-        }
-
-        stage('Delete All File in Jenkins Local')
-        {   
-            echo "Delete Folder in Jenkins Local"
-            echo "================================"
-            deleteDir()
-            echo "Delete All File Successfully"
-            echo "================================"
-        }
-
-        stage('Clone Newest Repository') 
-        {
-            echo "Starting Clone Repository"
-            echo "================================"
-            sh "git clone https://github.com/UTEDungNguyen/Mechatronics-Project.git"
-            echo "Cloning Repository Successfully"
-            echo "================================"
-        }
-
-        stage('Checking Repository is exist or not?') 
-        {
-            sh "ls"
-        }
-
-        stage('Get Path of Repo') 
-        {
-            sh 'pwd'
-        }
-
-        stage('Checkout to Branch running Jenkins File') 
-        {
-            dir('Mechatronics-Project') {
-                sh 'pwd'
-                echo "Starting Checkout Branch"
+            stage('Check Process of Python3 Execution')
+            {   
+                echo "Check process of Python3"
                 echo "================================"
-                sh "git checkout feature/jenkins-running-service"
-                echo "Checkout Branch Successfully"
-                echo "================================"
+                sh "ps aux | grep python3"
             }
-        }
 
-        stage('Check Current Branch') 
-        {
-            dir('Mechatronics-Project') {
-                sh 'pwd'
-                sh "git rev-parse --abbrev-ref HEAD" 
-            }
-        }
-
-        stage('Check All File exist in Branch') 
-        {
-            dir('Mechatronics-Project')
+            stage('Kill All Process Define')
             {
-                sh 'pwd'
-                sh "ls"
-            }
-        }
-
-        stage('Execution Process Durian Classification') {
-            dir('Mechatronics-Project') 
-            {
-                stage('DCMotor Executing')
+                stage('Kill Control DC Motor Process')
                 {
-                    sh "nohup sudo python3 ControlDCMotor.py &"
+                    echo "Kill Control DCMotor Process"
+                    sh "sudo pkill -f ControlDCMotor.py"
                 }
 
-                stage('Image Processing Executing')
+                stage('Kill Get Result of Durian Process')
                 {
-                    sh "nohup sudo python3 GetResultSample.py &"
-                }  
+                    echo "Kill Get Result Process"
+                    sh "sudo pkill -f GetResultSample.py"
+                }
 
-                stage('Capture Image Executing')
+                stage('Kill Capture Image Process')
                 {
-                    sh "nohup sudo python3 CaptureRealTime.py &"
+                    echo "Kill CApture Image Process"
+                    sh "sudo pkill -f CaptureRealTime.py"
+                }
+            }
+
+            stage('Delete All File in Jenkins Local')
+            {   
+                echo "Delete Folder in Jenkins Local"
+                echo "================================"
+                deleteDir()
+                echo "Delete All File Successfully"
+                echo "================================"
+            }
+
+            stage('Clone Newest Repository') 
+            {
+                echo "Starting Clone Repository"
+                echo "================================"
+                sh "git clone https://github.com/UTEDungNguyen/Mechatronics-Project.git"
+                echo "Cloning Repository Successfully"
+                echo "================================"
+            }
+
+            stage('Checking Repository is exist or not?') 
+            {
+                sh "ls"
+            }
+
+            stage('Get Path of Repo') 
+            {
+                sh 'pwd'
+            }
+
+            stage('Checkout to Branch running Jenkins File') 
+            {
+                dir('Mechatronics-Project') {
+                    sh 'pwd'
+                    echo "Starting Checkout Branch"
+                    echo "================================"
+                    sh "git checkout feature/jenkins-running-service"
+                    echo "Checkout Branch Successfully"
+                    echo "================================"
+                }
+            }
+
+            stage('Check Current Branch') 
+            {
+                dir('Mechatronics-Project') {
+                    sh 'pwd'
+                    sh "git rev-parse --abbrev-ref HEAD" 
+                }
+            }
+
+            stage('Check All File exist in Branch') 
+            {
+                dir('Mechatronics-Project')
+                {
+                    sh 'pwd'
+                    sh "ls"
+                }
+            }
+
+            stage('Execution Process Durian Classification') 
+            {
+                dir('Mechatronics-Project') 
+                {
+                    stage('DCMotor Executing')
+                    {
+                        sh "nohup sudo python3 ControlDCMotor.py &"
+                    }
+
+                    stage('Image Processing Executing')
+                    {
+                        sh "nohup sudo python3 GetResultSample.py &"
+                    }  
+
+                    stage('Capture Image Executing')
+                    {
+                        sh "nohup sudo python3 CaptureRealTime.py &"
+                    }
                 }
             }
         }
