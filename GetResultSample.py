@@ -5,7 +5,7 @@ import glob
 import os
 import time
 import PLCController
-from PLCController import PLC
+# from PLCController import PLC
 import DBconfig
 # from DBconfig import firebase
 from datetime import datetime
