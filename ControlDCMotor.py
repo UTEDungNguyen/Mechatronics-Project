@@ -2,8 +2,8 @@
 
 import time
 import serial
-import PLCController
-from PLCController import PLC
+# import PLCController
+# from PLCController import PLC
 from snap7.util import *
 from snap7.types import *
 import snap7.client as c
