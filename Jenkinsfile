@@ -96,17 +96,20 @@ node
                 {
                     stage('DCMotor Executing')
                     {
-                        sh "nohup sudo python3 ControlDCMotor.py &"
+                        // sh "nohup sudo python3 ControlDCMotor.py &"
+                        sh "sudo python3 ControlDCMotor.py &"
                     }
 
                     stage('Image Processing Executing')
                     {
-                        sh "nohup sudo python3 GetResultSample.py &"
+                        // sh "nohup sudo python3 GetResultSample.py &"
+                        sh "python3 GetResultSample.py"
                     }  
 
                     stage('Capture Image Executing')
                     {
-                        sh "nohup sudo python3 CaptureRealTime.py &"
+                        // sh "nohup sudo python3 CaptureRealTime.py &"
+                        sh "python3 CaptureRealTime.py"
                     }
                 }
             }
