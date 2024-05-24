@@ -103,6 +103,8 @@ node
                     stage('Image Processing Executing')
                     {
                         // sh "nohup sudo python3 GetResultSample.py &"
+                        sh 'pip3 install qrcode'
+                        sh 'pip3 install pyrebase'
                         sh "python3 GetResultSample.py"
                     }  
 
