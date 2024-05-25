@@ -117,17 +117,19 @@ node
             }
 
             // Send success email
-            emailext (
-                subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Success",
-                body: """
-                    <p>Good news,</p>
-                    <p>The job '${env.JOB_NAME}' completed successfully.</p>
-                    <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
-                """,
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                mimeType: 'text/html'
-            )
+            // emailext (
+            //     subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Success",
+            //     body: """
+            //         <p>Good news,</p>
+            //         <p>The job '${env.JOB_NAME}' completed successfully.</p>
+            //         <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+            //     """,
+            //     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+            //     mimeType: 'text/html'
+            // )
         }
+        emailext body: 'Hello', subject: 'Jenkins Service Build Project Status', to: 'dungduide2002@gmail.com'
+
     }
 
     catch (Exception e) 
@@ -135,20 +137,20 @@ node
         // Handle Error while running process and return error code
         echo "Build failed due to: ${e.message}"
         currentBuild.result = 'FAILURE'
-        // Send failure email
-        emailext (
-            subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Failure",
-            body: """
-                <p>Dear Developer,</p>
-                <p>The job '${env.JOB_NAME}' has failed.</p>
-                <p>Error: ${e}</p>
-                <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
-            """,
-            recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-            mimeType: 'text/html'
-        )
-        // Re-throw the exception to mark the build as failed
-        throw e
+        // // Send failure email
+        // emailext (
+        //     subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Failure",
+        //     body: """
+        //         <p>Dear Developer,</p>
+        //         <p>The job '${env.JOB_NAME}' has failed.</p>
+        //         <p>Error: ${e}</p>
+        //         <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+        //     """,
+        //     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+        //     mimeType: 'text/html'
+        // )
+        // // Re-throw the exception to mark the build as failed
+        // throw e
     }
 
     finally
