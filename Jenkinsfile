@@ -128,7 +128,14 @@ node
             //     mimeType: 'text/html'
             // )
         }
-        mail bcc: '', body: 'Hello', cc: '', from: '', replyTo: '', subject: 'Jenkins Service Build Project Status', to: 'dungduide2002@gmail.com'
+        mail bcc: '', body: '''         <p>Good news,</p>
+           <p>The job completed successfully.</p>
+            <p>Check the build details here</a>.</p>''', 
+            cc: '', 
+            from: '', 
+            replyTo: '', 
+            subject: 'Jenkins Service Build Project Status', 
+            to: 'dungduide2002@gmail.com'
 
     }
 
