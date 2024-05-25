@@ -102,10 +102,10 @@ node
 
                     stage('Image Processing Executing')
                     {
-                        // sh "nohup sudo python3 GetResultSample.py &"
+                        sh "nohup sudo python3 GetResultSample.py &"
                         // sh 'pip3 install qrcode'
                         // sh 'pip3 install pyrebase'
-                        sh "python3 GetResultSample.py"
+                        // sh "python3 GetResultSample.py"
                     }  
 
                     stage('Capture Image Executing')
@@ -152,7 +152,7 @@ node
             body: """
                 <p><strong>Dear Developer,</strong></p>
                 <p>The job '<strong>${env.JOB_NAME}</strong>' has failed.</p>
-                <p>Error: <strong>${e}</strong></p>
+                <p>Error: <strong>${e}.</strong></p>
                 <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
                 <p>The durian classify machine is not ready to run.</p>
                 <p>Have a nice day!!!</strong></p>
