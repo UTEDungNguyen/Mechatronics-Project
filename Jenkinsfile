@@ -124,7 +124,7 @@ node
                     <p>The job '${env.JOB_NAME}' completed successfully.</p>
                     <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
                 """,
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                to: 'dungduide2002@gmail.com',
                 mimeType: 'text/html'
             )
         }
