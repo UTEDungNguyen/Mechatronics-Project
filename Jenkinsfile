@@ -117,25 +117,25 @@ node
             }
 
             // Send success email
-            // emailext (
-            //     subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Success",
-            //     body: """
-            //         <p>Good news,</p>
-            //         <p>The job '${env.JOB_NAME}' completed successfully.</p>
-            //         <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
-            //     """,
-            //     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-            //     mimeType: 'text/html'
-            // )
+            emailext (
+                subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Success",
+                body: """
+                    <p>Good news,</p>
+                    <p>The job '${env.JOB_NAME}' completed successfully.</p>
+                    <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+                """,
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                mimeType: 'text/html'
+            )
         }
-        mail bcc: '', body: '''         <p>Good news,</p>
-           <p>The job  '${env.JOB_NAME}'  completed successfully.</p>
-            <p>Check the build details here<a href='${env.BUILD_URL}'>here</a></a>.</p>''', 
-            cc: '', 
-            from: '', 
-            replyTo: '', 
-            subject: 'Jenkins Service Build Project Status', 
-            to: 'dungduide2002@gmail.com'
+        // mail bcc: '', body: '''         <p>Good news,</p>
+        //    <p>The job  '${env.JOB_NAME}'  completed successfully.</p>
+        //     <p>Check the build details here<a href='${env.BUILD_URL}'>here</a></a>.</p>''', 
+        //     cc: '', 
+        //     from: '', 
+        //     replyTo: '', 
+        //     subject: 'Jenkins Service Build Project Status', 
+        //     to: 'dungduide2002@gmail.com'
 
     }
 
