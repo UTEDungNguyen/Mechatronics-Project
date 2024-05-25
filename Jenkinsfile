@@ -129,8 +129,8 @@ node
             // )
         }
         mail bcc: '', body: '''         <p>Good news,</p>
-           <p>The job completed successfully.</p>
-            <p>Check the build details here</a>.</p>''', 
+           <p>The job  '${env.JOB_NAME}'  completed successfully.</p>
+            <p>Check the build details here<a href='${env.BUILD_URL}'>here</a></a>.</p>''', 
             cc: '', 
             from: '', 
             replyTo: '', 
