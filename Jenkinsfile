@@ -120,24 +120,23 @@ node
             emailext (
                 subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Success",
                 body: """
-                    <p>Good news,</p>
-                    <p>The job '${env.JOB_NAME}' completed successfully.</p>
+                    <p><strong>Good news Developer,</strong></p>
+                    <p>The job <strong>'${env.JOB_NAME}'</strong> completed successfully.</p>
                     <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+                    <p>Have a nice day!!!</strong></p>
+
+                    <p>Sincerely,</p>
+                    <p>--------------------------------------------------------</p>
+                    <p><strong>Jenkins Service</strong></p>
+                    <p><strong>Ho Chi Minh University of Technology and Education</strong></p>
+                    <p><strong>Expertise : Mechatronics</strong></p>
+                    <p><strong>Email : dungduide2002@gmail.com></p>
+                    <p><strong>Telephone : 0785180902></p>
                 """,
                 to: 'dungduide2002@gmail.com',
-                cc: 'dungnp18@gmail.com',
                 mimeType: 'text/html'
             )
         }
-        // mail bcc: '', body: '''         <p>Good news,</p>
-        //    <p>The job  '${env.JOB_NAME}'  completed successfully.</p>
-        //     <p>Check the build details here<a href='${env.BUILD_URL}'>here</a></a>.</p>''', 
-        //     cc: '', 
-        //     from: '', 
-        //     replyTo: '', 
-        //     subject: 'Jenkins Service Build Project Status', 
-        //     to: 'dungduide2002@gmail.com'
-
     }
 
     catch (Exception e) 
@@ -145,20 +144,29 @@ node
         // Handle Error while running process and return error code
         echo "Build failed due to: ${e.message}"
         currentBuild.result = 'FAILURE'
-        // // Send failure email
-        // emailext (
-        //     subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Failure",
-        //     body: """
-        //         <p>Dear Developer,</p>
-        //         <p>The job '${env.JOB_NAME}' has failed.</p>
-        //         <p>Error: ${e}</p>
-        //         <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
-        //     """,
-        //     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-        //     mimeType: 'text/html'
-        // )
-        // // Re-throw the exception to mark the build as failed
-        // throw e
+
+        // Send failed email
+        emailext (
+            subject: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) Failure",
+            body: """
+                <p><strong>Dear Developer,</strong></p>
+                <p>The job '<strong>${env.JOB_NAME}</strong>' has failed.</p>
+                <p>Error: <strong>${e}</strong></p>
+                <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+
+                <p>Sincerely,</p>
+                <p>--------------------------------------------------------</p>
+                <p><strong>Jenkins Service</strong></p>
+                <p><strong>Ho Chi Minh University of Technology and Education</strong></p>
+                <p><strong>Expertise : Mechatronics</strong></p>
+                <p><strong>Email : dungduide2002@gmail.com></p>
+                <p><strong>Telephone : 0785180902></p>
+            """,
+            to: 'dungduide2002@gmail.com',
+            mimeType: 'text/html'
+        )
+        // Throw exception để đánh dấu build là thất bại
+        throw e
     }
 
     finally
