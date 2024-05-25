@@ -102,10 +102,10 @@ node
 
                     stage('Image Processing Executing')
                     {
-                        sh "nohup sudo python3 GetResultSample.py &"
+                        // sh "nohup sudo python3 GetResultSample.py &"
                         // sh 'pip3 install qrcode'
                         // sh 'pip3 install pyrebase'
-                        // sh "python3 GetResultSample.py"
+                        sh "python3 GetResultSample.py"
                     }  
 
                     stage('Capture Image Executing')
@@ -123,6 +123,7 @@ node
                     <p><strong>Good news Developer,</strong></p>
                     <p>The job <strong>'${env.JOB_NAME}'</strong> completed successfully.</p>
                     <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+                    <p>The durian classify machine is ready to run.</p>
                     <p>Have a nice day!!!</strong></p>
 
                     <p>Sincerely,</p>
@@ -130,8 +131,8 @@ node
                     <p><strong>Jenkins Service</strong></p>
                     <p><strong>Ho Chi Minh University of Technology and Education</strong></p>
                     <p><strong>Expertise : Mechatronics</strong></p>
-                    <p><strong>Email : dungduide2002@gmail.com></p>
-                    <p><strong>Telephone : 0785180902></p>
+                    <p><strong>Email : dungduide2002@gmail.com</strong></p>
+                    <p><strong>Telephone : 0785180902</strong></p>
                 """,
                 to: 'dungduide2002@gmail.com',
                 mimeType: 'text/html'
@@ -153,19 +154,21 @@ node
                 <p>The job '<strong>${env.JOB_NAME}</strong>' has failed.</p>
                 <p>Error: <strong>${e}</strong></p>
                 <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
+                <p>The durian classify machine is not ready to run.</p>
+                <p>Have a nice day!!!</strong></p>
 
                 <p>Sincerely,</p>
                 <p>--------------------------------------------------------</p>
                 <p><strong>Jenkins Service</strong></p>
                 <p><strong>Ho Chi Minh University of Technology and Education</strong></p>
                 <p><strong>Expertise : Mechatronics</strong></p>
-                <p><strong>Email : dungduide2002@gmail.com></p>
-                <p><strong>Telephone : 0785180902></p>
+                <p><strong>Email : dungduide2002@gmail.com</strong></p>
+                <p><strong>Telephone : 0785180902</strong></p>
             """,
             to: 'dungduide2002@gmail.com',
             mimeType: 'text/html'
         )
-        // Throw exception để đánh dấu build là thất bại
+        // Throw exception
         throw e
     }
 
