@@ -125,7 +125,7 @@ node
                     <p>Check the build details <a href='${env.BUILD_URL}'>here</a>.</p>
                 """,
                 to: 'dungduide2002@gmail.com',
-                cc: 'dungnp18@gmail.com'
+                cc: 'dungnp18@gmail.com',
                 mimeType: 'text/html'
             )
         }
