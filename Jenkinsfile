@@ -128,7 +128,7 @@ node
             //     mimeType: 'text/html'
             // )
         }
-        emailext body: 'Hello', subject: 'Jenkins Service Build Project Status', to: 'dungduide2002@gmail.com'
+        mail bcc: '', body: 'Hello', cc: '', from: '', replyTo: '', subject: 'Jenkins Service Build Project Status', to: 'dungduide2002@gmail.com'
 
     }
 
