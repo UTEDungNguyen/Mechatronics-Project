@@ -113,21 +113,9 @@ video.set(4,frameheight)
 ####################################################
 
 while True: 
-    
     ret,img = video.read()
-    imgContour = img.copy()
-    imgblur = cv2.GaussianBlur(img,(7,7),1)   
-    gray = cv2.cvtColor(imgblur, cv2.COLOR_BGR2GRAY)
-
-    threshold1 = 100
-    threshold2 = 60
-    imgCany = cv2.Canny(gray,threshold1,threshold2)
-
-    # Adapte threshold img no need Detect thresh Manual
-    output_adapthresh = cv2.adaptiveThreshold (gray,255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,51, 0) 
-
     # Show image 
-    imgstack = IMG_Processing.stackImages(0.8,([img],[output_adapthresh]))
+    imgstack = IMG_Processing.stackImages(0.8,([img]))
     cv2.imshow("Result Camera",imgstack)
 
     capture_img.capture(3,6,S7WLBit)
