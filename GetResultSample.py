@@ -97,8 +97,8 @@ class DetectObject:
                 result_percent = result_sub/area_elipse
                 result_percent = "{:.3f}".format(result_percent)
                 result_percent = float(result_percent)
-                # print("Area of substraction (pixel): ",result_percent)
-                if (result_percent < 0.2): # 20% 
+                print("Area of substraction (pixel): ",result_percent)
+                if (result_percent < 0.1): # 20% 
                     # print("Durian meet standards")
                     meetStandard = True
                 else:
@@ -134,7 +134,7 @@ class DetectObject:
         # folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
         if not os.path.exists(folder_object):
             os.makedirs(folder_object)
-        newest_image_path =folder_object +"ResultObject_NO"+str(count) +".JPG"
+        newest_image_path =folder_object +"ResultObject_NO"+str(count +1) +".JPG"
         cv2.imwrite(newest_image_path, img_processed_object)
         return resultObject,img_processed_object
 
@@ -212,7 +212,7 @@ class DetectDefect:
         flag_defect = True
         if not os.path.exists(folder_defect):
             os.makedirs(folder_defect)
-        newest_image_path =folder_defect +"ResultDefect_NO"+str(count) +".JPG"
+        newest_image_path =folder_defect +"ResultDefect_NO"+str(count +1) +".JPG"
         cv2.imwrite(newest_image_path, img_processed_defect)
         # cv2.imwrite("The_image_processed_defect.jpg",img_processed_defect)
         return resultDefect,img_processed_defect
@@ -392,11 +392,13 @@ while True:
                 if resultObject == True and resultDefect == False:
                     print("Meet Standard IMG Processing")
                     MeetStandardIMGProcessing = True
+                    print(f"resultObject: {resultObject}, resultDefect: {resultDefect}")
 
                     
                 else :
                     MeetStandardIMGProcessing = False
                     print("Not Meet Standard IMG Processing")
+                    print(f"resultObject: {resultObject}, resultDefect: {resultDefect}")
 
 
 ####################################### GET RESULT IMAGE PROCESSING #####################################
@@ -423,6 +425,7 @@ while True:
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+                print(" UPDATE TO FIREBASE")
                 # time.sleep(5)
 
             elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
@@ -437,9 +440,11 @@ while True:
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+                print(" UPDATE TO FIREBASE")
                 # time.sleep(5)
 
         elif  MeetStandardIMGProcessing == False:
+                count += 1
                 print(f"Mass_Out : {SampleWeight}")
                 print(" SAMPLE NOT MEET STANDARD")
                 flag_object = False
