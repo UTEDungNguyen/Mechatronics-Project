@@ -78,7 +78,7 @@ class capture_img():
             folder = "/home/pi/Mechatronics_Project/Mechatronics-Project/Image_Original/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
-            newest_image_path =folder +"sampleNo"+str(count_capture) +".JPG"
+            newest_image_path =folder +"sampleNo"+str(count_capture) +".jpg"
             cv2.imwrite(newest_image_path, frame)
             print('capture success......................')
 

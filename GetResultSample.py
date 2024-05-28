@@ -34,6 +34,7 @@ current_datetime = datetime.now()
 
 # Định dạng ngày tháng
 formatted_date = current_datetime.strftime("%Y-%m-%d")
+formatted_hour = current_datetime.strftime("%H:%M:%S")
 count = 0
 list_Weights = []
 def empty(a):
@@ -222,7 +223,7 @@ class PLCVal:
 def qrConfig():
     global count
     # Data to encode
-    data = "https://haviet12.github.io/UI_Durian-s_Infor/?custom_param=Sample" + str(count)
+    data = "https://utedungnguyen.github.io/MP_Web_Display/?custom_param=Sample" + str(count)
     
     # Creating an instance of QRCode class
     qr = qrcode.QRCode(version = 1,
@@ -324,7 +325,7 @@ while True:
                 resultDefect,img_processed_defect = defect.getResultDefect(imgToDetectDefect,folder_defect_result)
                 resultObject,img_processed_object = object.getResultObject(imgToDetectObject,folder_object_result)
                 
-                if resultObject == True and resultDefect == False:
+                if resultObject == True and resultDefect == True: ######## temporary config
                     print("Meet Standard IMG Processing")
                     MeetStandardIMGProcessing = True
                     print(f"resultObject: {resultObject}, resultDefect: {resultDefect}")
@@ -345,43 +346,46 @@ while True:
         path_original_img = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + origin_img_path
       
         if MeetStandardIMGProcessing == True:
+            print(" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             if SampleWeight >1800  and SampleWeight<5000 :
                 count += 1
                 print(" Meet Standard Type 1 ")
                 database.child("Sample"+str(count))
-                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date, "Time_Export": formatted_hour}
                 database.set(data)
-                print("PUSH DATA SUCCESSFUL")
+                # print("PUSH DATA SUCCESSFUL")
                 storage.child("Sample"+str(count)+".JPG").put(path_original_img)
                 qrConfig()
 
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+                print("PUSH DATA SUCCESSFUL")
                 # time.sleep(5)
 
             elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
                 count += 1
                 print(" Meet Standard Type 2")
                 database.child("Sample"+str(count))
-                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date}
+                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date, "Time_Export": formatted_hour}
                 database.set(data)
-                print("PUSH DATA SUCCESSFUL")
+                # print("PUSH DATA SUCCESSFUL")
                 storage.child("Sample"+str(count)+".JPG").put(path_original_img)
                 qrConfig()
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+                print("PUSH DATA SUCCESSFUL")
                 # time.sleep(5)
 
-        elif  MeetStandardIMGProcessing == False:
+        else  :
                 count += 1
                 print(f"Mass_Out : {SampleWeight}")
                 print(" SAMPLE NOT MEET STANDARD")
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
-                time.sleep(5)
+                # time.sleep(5)
             
         moveImage(path_file,folder_dest)
                 
