@@ -63,8 +63,8 @@ all: main-build
 main-build: dc_motor_control.elf secondary-outputs
 
 # Tool invocations
-dc_motor_control.elf dc_motor_control.map: $(OBJS) $(USER_OBJS) D:\Mechartrocnics\ -\ Project\Mechatronics-Project\dc_motor_control\dc_motor_control\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "dc_motor_control.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\Mechartrocnics - Project\Mechatronics-Project\dc_motor_control\dc_motor_control\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="dc_motor_control.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+dc_motor_control.elf dc_motor_control.map: $(OBJS) $(USER_OBJS) D:\GitHub\Mechatronics-Project\dc_motor_control\dc_motor_control\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "dc_motor_control.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\GitHub\Mechatronics-Project\dc_motor_control\dc_motor_control\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="dc_motor_control.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
