@@ -203,15 +203,23 @@ class PLCVal:
         global doneGetWeight
         global flag_PLC
         global RL_getLoadcellValue
+        Single_Sanple =PLC.ReadMemory(5,0,S7WLBit)
+        Multi_Sample =PLC.ReadMemory(5,1,S7WLBit)
         RL_chan = PLC.ReadMemory(3,1,S7WLBit)
         RL_le = PLC.ReadMemory(3,2,S7WLBit)
-        if RL_chan == True and RL_le == False:
-            Mass_Out = PLC.ReadMemory(50,0,S7WLWord)  
+        if (Single_Sanple == True and Multi_Sample == True) or (Single_Sanple == False and Multi_Sample == False):
+            pass
+        elif Single_Sanple == True and Multi_Sample == False:
+            Mass_Out = PLC.ReadMemory(58,0,S7WLWord)
             list_Weights.append(Mass_Out)
-        
-        elif RL_chan == False and RL_le == True:
-            Mass_Out = PLC.ReadMemory(54,0,S7WLWord)
-            list_Weights.append(Mass_Out)
+        else:
+            if RL_chan == True and RL_le == False:
+                Mass_Out = PLC.ReadMemory(50,0,S7WLWord)  
+                list_Weights.append(Mass_Out)
+            
+            elif RL_chan == False and RL_le == True:
+                Mass_Out = PLC.ReadMemory(54,0,S7WLWord)
+                list_Weights.append(Mass_Out)
            
         flag_PLC = False
         doneGetWeight = True
