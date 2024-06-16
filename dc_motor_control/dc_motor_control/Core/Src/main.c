@@ -820,8 +820,8 @@ static conveyor_status_t conveyor_control(uint8_t state, uint8_t pwm_t)
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 0);
     break;
   }
-    return CONVEYOR_STATUS_OK;
   }
+  return CONVEYOR_STATUS_OK;
 }
 
 static classify_status_t classify_control(uint8_t classify_state, uint8_t pwm_classify)
@@ -846,8 +846,8 @@ static classify_status_t classify_control(uint8_t classify_state, uint8_t pwm_cl
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, pwm_classify);
     break;
   }
-    return CLASSIFY_STATUS_OK;
   }
+  return CLASSIFY_STATUS_OK;
 }
 /* USER CODE END 4 */
 
