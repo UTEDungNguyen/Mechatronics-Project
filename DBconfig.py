@@ -1,10 +1,6 @@
 # import pyrebase
-
 import json
 import pyrebase
-# from distance import distance
-
-
 config = {
     "apiKey": "AIzaSyCj8R0iJmoT-hlfETLGdTYxzk5VUQ9CLBw",
     "authDomain": "mechatronic-project-af507.firebaseapp.com",
@@ -16,7 +12,5 @@ config = {
     
 
 };
-
-
 
 firebase = pyrebase.initialize_app(config)
