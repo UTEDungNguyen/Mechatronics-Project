@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "flash.h"
+#include "bootloader.h"
 
 /* USER CODE END Includes */
 
