@@ -16,6 +16,7 @@ from snap7.types import *
 import snap7.client as c
 import pyrebase
 import shutil
+import serial
 
 
 storage = firebase.storage()
@@ -29,6 +30,8 @@ doneGetWeight = False
 RL_getLoadcellValue = False
 
 MeetStandardIMGProcessing = False
+
+ser = serial.Serial("/dev/ttyAMA0", 9600)
 # Lấy ngày và giờ hiện tại
 current_datetime = datetime.now()
 
@@ -368,6 +371,9 @@ while True:
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+                
+                # CLassification DC Motor 
+                ser.write(b"L")
                 print("PUSH DATA SUCCESSFUL")
                 # time.sleep(5)
 
@@ -383,6 +389,9 @@ while True:
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
+                
+                # CLassification DC Motor 
+                ser.write(b"R")
                 print("PUSH DATA SUCCESSFUL")
                 # time.sleep(5)
             else : 
