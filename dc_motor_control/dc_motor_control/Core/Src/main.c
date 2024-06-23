@@ -110,8 +110,8 @@ typedef enum
 // Define Enum of Classify Status Running or Stop
 typedef enum
 {
-  START_CLASSIFY_STATE,
-  STOP_CLASSIFY_STATE
+  STOP_CLASSIFY_STATE,
+  START_CLASSIFY_STATE
 } running_classify_state_t;
 
 // Define Enum of Conveyor DC Motor Status
@@ -138,9 +138,9 @@ typedef enum
 // Define Enum Interrupt Timer Status
 typedef enum
 {
-  START_INTERRUPT_TIMER_STATUS = 0x00, /*!< Everything OK */
+  STOP_INTERRUPT_TIMER_STATUS = 0x00, /*!< Everything OK */
   RUNNING_INTERRUPT_TIMER_STATUS,
-  STOP_INTERRUPT_TIMER_STATUS
+  START_INTERRUPT_TIMER_STATUS
 } interrupt_timer_status_t;
 
 // Define Enum Check Interrupt Timer Status
@@ -254,7 +254,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
       data_pwm[b] = rxbuf_2[b];
     }
 
-    if (data_pwm[0] != 'L' || data_pwm[0] != 'R')
+    if (data_pwm[0] != 'L' && data_pwm[0] != 'R')
     {
       state = MOTOR_LEFT_STATE;
       state_change = UART_VARIABLE_RX_STATUS_OK;
@@ -359,24 +359,25 @@ int main(void)
         HAL_TIM_Base_Start_IT(&htim3);
         interrupt_timer_state = RUNNING_INTERRUPT_TIMER_STATUS;
       }
-      if (classify_control(classify_state, CLASSIFY_PWM_T) != CLASSIFY_STATUS_OK)
-      {
-        Error_Handler();
-      }
       // run_classify = STOP_CLASSIFY_STATE;
     }
 
-    if (test_state)
+    if (classify_control(classify_state, CLASSIFY_PWM_T) != CLASSIFY_STATUS_OK)
     {
-      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, pwm_test_1);
-      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pwm_test_1);
+      Error_Handler();
     }
+
+    // if (test_state)
+    // {
+    //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, pwm_test_1);
+    //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pwm_test_1);
+    // }
   }
   /* USER CODE END 3 */
 }
@@ -582,7 +583,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 1599;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 9999;
+  htim3.Init.Period = 99999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
