@@ -40,6 +40,7 @@
 #define RXBUF_SIZE 8
 #define DATA_PWM_SIZE 6
 #define DUTY_CYCLE_SIZE 2
+#define CLASSIFY_SIZE 1
 #define CLASSIFY_PWM_T 50
 /* USER CODE END PD */
 
@@ -82,6 +83,7 @@ static uint8_t test_state = 0;
 // Define Buffer analyze PWM
 static char data_pwm[DATA_PWM_SIZE];
 static char duty_cycle_send[DUTY_CYCLE_SIZE];
+static char classify_done[CLASSIFY_SIZE];
 
 // Define Enum of Conveyor DC Motor State
 typedef enum
@@ -191,6 +193,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       interrupt_timer_state = STOP_INTERRUPT_TIMER_STATUS;
       otherwise_state = START_OTHERWISE_STATUS;
       HAL_TIM_Base_Stop_IT(&htim3);
+      HAL_UART_Transmit(&huart2, (uint8_t *)"F", 1, 100);
     }
   }
 
