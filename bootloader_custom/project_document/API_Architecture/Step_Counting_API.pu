@@ -1,0 +1,130 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome 
+
+package Application_Layer {
+  actor system_manager as sys
+}
+
+' Define System Service
+package System_Service {
+  usecase "Display Manager" as UC1
+  usecase "User ID Manager" as UC2
+  usecase "Step Counting Manager" as UC3
+  usecase "Backup Manager" as UC4
+}
+
+sys --> UC1
+sys --> UC2
+sys --> UC3
+sys --> UC4
+
+' Define Display_Manager
+package Display_Manager {
+  usecase "display_manager_init()" as DM1
+  usecase "display_manager()" as DM2
+  usecase "bsp_delay_timer" as bsp_delay_timer
+  usecase "bsp_rtc" as bsp_rtc
+  usecase "driver_mfrc522" as driver_mfrc522
+  usecase "driver_ssd1306" as driver_ssd1306
+  usecase "driver_ssd1306_fonts" as driver_ssd1306_fonts
+  usecase "ds1307" as ds1307_t
+  usecase "step_counting_manager" as step_counting_manager
+  usecase "user_id_manager" as user_id_manager
+}
+package ds1307.h {
+  usecase "ds1307_set_time()" as ds1307_set_time
+  usecase "ds1307_get_time()" as ds1307_get_time
+  usecase "bsp_i2c" as bsp_i2c_ds1307
+}
+package driver_mfrc522.h {
+  usecase "drv_mfrc522_init()" as drv_mfrc522_init
+  usecase "drv_mfrc522_read_id_card()" as drv_mfrc522_read_id_card
+  usecase "bsp_mfrc522" as bsp_mfrc522
+}
+package ds1307.h {
+  usecase "ds1307_set_time()" as ds1307_set_time
+  usecase "ds1307_get_time()" as ds1307_get_time
+  usecase "bsp_mfrc522" as bsp_mfrc522
+  usecase "bsp_i2c" as bsp_i2c_ds1307
+}
+package step_counting_manager.h {
+  usecase "step_start_walking()" as step_start_walking
+  usecase "driver_mpu6050" as driver_mpu6050
+}
+package driver_mpu6050.h {
+  usecase "mpu6050_init()" as mpu6050_init
+  usecase "mpu6050_read_accel()" as mpu6050_read_accel
+  usecase "mpu6050_read_gyro()" as mpu6050_read_gyro
+}
+package bsp_mfrc522.h {
+  usecase "bsp_mfrc522_init()" as bsp_mfrc522_init
+  usecase "bsp_mfrc522_read_address()" as bsp_mfrc522_read_address
+  usecase "bsp_mfrc522_anticoll()" as bsp_mfrc522_anticoll
+  usecase "bsp_mfrc522_request()" as bsp_mfrc522_request
+  usecase "bsp_mfrc522_haft()" as bsp_mfrc522_haft
+  usecase "bsp_delay" as bsp_delay
+  usecase "bsp_gpio" as bsp_gpio
+  usecase "bsp_spi" as bsp_spi
+}
+
+UC1 --> DM1
+UC1 --> DM2
+UC1 --> bsp_rtc
+UC1 --> bsp_delay_timer
+UC1 --> driver_mfrc522
+UC1 --> driver_ssd1306
+UC1 --> driver_ssd1306_fonts
+UC1 --> ds1307_t
+UC1 --> step_counting_manager
+UC1 --> user_id_manager
+ds1307_t --> ds1307_set_time
+ds1307_t --> ds1307_get_time
+ds1307_t --> bsp_i2c_ds1307
+driver_mfrc522 --> drv_mfrc522_init
+driver_mfrc522 --> drv_mfrc522_read_id_card
+driver_mfrc522 --> bsp_mfrc522
+step_counting_manager --> step_start_walking
+step_counting_manager --> driver_mpu6050
+driver_mpu6050 --> mpu6050_init
+driver_mpu6050 --> mpu6050_read_accel
+driver_mpu6050 --> mpu6050_read_gyro
+bsp_mfrc522 --> bsp_delay
+bsp_mfrc522 --> bsp_gpio
+bsp_mfrc522 --> bsp_spi
+bsp_mfrc522 --> bsp_mfrc522_init
+bsp_mfrc522 --> bsp_mfrc522_read_address
+bsp_mfrc522 --> bsp_mfrc522_anticoll
+bsp_mfrc522 --> bsp_mfrc522_request
+bsp_mfrc522 --> bsp_mfrc522_haft
+
+' Define User_ID_Manager
+package User_ID_Manager {
+  usecase "user_check_scanning_time()" as UIM1
+  usecase "user_clear_flag()" as UIM2
+}
+
+UC2 --> UIM1
+UC2 --> UIM2
+
+' Define Step_Counting_Manager
+package Step_Counting_Manager {
+  usecase "step_start_walking()" as SCM1
+}
+
+UC3 --> SCM1
+
+' Define Backup_Manager
+package Backup_Manager {
+  usecase "backup_check_status()" as BM1
+  usecase "backup_reset()" as BM2
+  usecase "backup_user_data()" as BM3
+  usecase "bsp_flash" as bsp_flash
+}
+
+UC4 --> BM1
+UC4 --> BM2
+UC4 --> BM3
+UC4 --> bsp_flash
+
+@enduml

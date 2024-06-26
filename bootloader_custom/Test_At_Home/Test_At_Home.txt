@@ -1,0 +1,66 @@
+Configuration	Test_At_Home
+STM32CubeMX 	6.9.0
+Date	06/23/2024
+MCU	STM32F401VETx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+7	PC13-ANTI_TAMP	GPIO_Output	
+24	PA1	GPIO_EXTI1	
+68	PA9	USART1_TX	
+69	PA10	USART1_RX	
+72	PA13	SYS_JTMS-SWDIO	
+76	PA14	SYS_JTCK-SWCLK	
+PERIPHERALS	MODES	FUNCTIONS	PINS
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+7	PC13-ANTI_TAMP	GPIO_Output	
+24	PA1	GPIO_EXTI1	
+68	PA9	USART1_TX	
+69	PA10	USART1_RX	
+72	PA13	SYS_JTMS-SWDIO	
+76	PA14	SYS_JTCK-SWCLK	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : Test_At_Home
+Project Folder : D:\Internship ITR Material\STM32CubeIDE-Intern-ITR\Test_At_Home
+Toolchain / IDE : STM32CubeIDE
+Firmware Package Name and Version : STM32Cube FW_F4 V1.27.1
+
+
+Code Generation Settings : 
+STM32Cube MCU packages and embedded software packs : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+

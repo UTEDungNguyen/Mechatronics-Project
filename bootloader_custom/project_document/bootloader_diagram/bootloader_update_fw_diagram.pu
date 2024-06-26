@@ -1,0 +1,93 @@
+@startuml
+
+box STM32 
+participant flash
+participant bootloader
+participant read_hex_file
+participant command_handler
+participant App_Indicate_0x08008000 #Cyan
+participant App_Current_0x08020000 #Cyan
+participant App_Update_0x08040000 #Cyan
+participant main
+end box
+
+activate main
+note over main: Read App Indicate
+main -> flash: flash_read_array(address, data, length)
+deactivate main
+activate flash
+note over flash: Read App Indicate
+flash -> App_Indicate_0x08008000 : read flash from App_Indicate_0x08008000 successful
+deactivate flash
+activate App_Indicate_0x08008000
+note over App_Indicate_0x08008000: UPDATE_FW or CURRENT_FW ?
+App_Indicate_0x08008000 -> main 
+deactivate App_Indicate_0x08008000
+
+activate main
+note over main: CURRENT_FW 
+main -> command_handler
+deactivate main
+activate command_handler
+note over command_handler: handle command 
+command_handler -> read_hex_file
+deactivate command_handler
+activate read_hex_file
+note over read_hex_file: handle hex file and write to flash 
+read_hex_file -> flash 
+deactivate read_hex_file
+activate flash
+note over flash: handle hex file and write to flash 
+flash -> App_Update_0x08040000 : flash_write_array(address, data, length)
+deactivate flash
+
+activate App_Indicate_0x08008000
+note over App_Indicate_0x08008000: UPDATE_FW or CURRENT_FW ?
+App_Indicate_0x08008000 -> main 
+deactivate App_Indicate_0x08008000
+
+activate main
+note over main: UPDATE_FW 
+main -> flash : flash_read_array(address, data, length)
+deactivate main
+activate flash
+note over flash: Read App Update
+flash -> App_Update_0x08040000 : read flash from App_Update_0x08040000 
+deactivate flash
+activate App_Update_0x08040000
+note over App_Update_0x08040000: Read App Update
+App_Update_0x08040000 -> flash : read flash from App_Update_0x08040000 successful
+deactivate App_Update_0x08040000
+activate flash
+note over flash: Write App Update into App current
+flash -> App_Current_0x08020000 : Write App Update into App Current
+deactivate flash
+activate App_Current_0x08020000
+note over App_Current_0x08020000: Waitting Write App Update into App current
+App_Current_0x08020000 -> flash : Write App Update into App Current successful
+deactivate App_Current_0x08020000
+activate flash
+note over flash: Erase App Update and App Indicate
+flash -> App_Indicate_0x08008000 : Erase App Indicate
+deactivate flash
+activate App_Indicate_0x08008000
+note over App_Indicate_0x08008000: Waitting Erase App Indicate
+App_Indicate_0x08008000 -> flash : Erase App Indicate successful
+deactivate App_Indicate_0x08008000
+activate flash
+note over flash: Erase App Update 
+flash -> App_Update_0x08040000 : Erase App Update
+deactivate flash
+activate App_Update_0x08040000
+note over App_Update_0x08040000: Waitting Erase App Update
+App_Update_0x08040000 -> flash : Erase App Update successful
+deactivate App_Update_0x08040000
+activate flash
+note over flash: Erase App Update and App Indicate Successful
+flash -> bootloader : Ready jump to App Current
+deactivate flash
+activate bootloader
+note over bootloader: Waitting to jump App Current
+bootloader -> App_Current_0x08020000 : Jump to App Current successful
+deactivate bootloader
+@enduml

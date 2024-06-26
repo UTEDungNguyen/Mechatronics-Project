@@ -1,0 +1,87 @@
+@startuml
+
+box STM32 
+participant flash
+participant bootloader
+participant read_hex_file
+participant command_handler
+participant main
+end box
+
+participant PC
+actor User
+
+activate User
+  alt Write
+    User -> PC: Write address + Erase Data \n+ Write data
+  else Read 
+    User -> PC: Read address\nNumber data
+  else Erase
+    User -> PC: Erase address + Sector Quantity
+  else Jump 
+    User -> PC: Jump to address
+  end
+deactivate User
+
+main <- PC: Data frame
+
+activate main
+note over main: DMA_Uart_Callback()
+main -> command_handler: data\ndata_length
+deactivate main
+
+activate command_handler
+    loop data_handle
+        command_handler  -> command_handler: Check data frame
+    end
+    command_handler -> main: Received frame callback\nCommand + Data
+    alt read_command
+        command_handler -> flash: flash_read_array(address, data, length)
+        activate flash
+          note over flash: Read data from flash
+          flash --> command_handler: read_data success
+        deactivate flash
+
+    else erase_command
+        command_handler -> flash: flash_erase(address, sector quantity)
+        activate flash
+        note over flash: Erase data from flash
+        flash --> command_handler: Erase data success
+        deactivate flash
+
+    else jump_command
+        command_handler -> bootloader: bootloader(address)
+        activate bootloader
+        note over bootloader: Jump to address
+        bootloader --> command_handler: Jump to address success
+        deactivate bootloader
+
+    else write_command
+        command_handler -> flash: flash_write_array(address, data, length)
+        
+        activate flash
+        note over flash: Write data from flash
+        flash --> command_handler: Write data success
+        deactivate flash
+    end
+deactivate command_handler
+ 
+command_handler -> main : Waiting to send hex file
+activate main 
+note over main : Waiting hex file
+main -> read_hex_file: Receive Hex file
+deactivate main
+
+activate read_hex_file
+note over read_hex_file: Handle hex file 
+read_hex_file -> flash : flash_write_array(address, data, length)
+deactivate read_hex_file
+
+activate flash
+note over flash: Write data from flash
+flash --> main : Write data from flash success
+deactivate flash
+
+
+
+@enduml
