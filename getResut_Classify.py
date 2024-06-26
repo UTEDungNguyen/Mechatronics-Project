@@ -17,6 +17,7 @@ import snap7.client as c
 import pyrebase
 import shutil
 import serial
+import threading
 
 
 storage = firebase.storage()
@@ -268,176 +269,74 @@ def moveImage(image_path,path_folder):
     # Move the file
     shutil.move(image_path, dest_path)
     
+data_receive = 0
+signal_state = False
+Classify_Sensor = False
+    
 def Classification():
-    global list_results
-    Classify_Sensor =PLC.ReadMemory(5,2,S7WLBit)
+    global list_results, Classify_Sensor
+    global data_receive, signal_state
+    if signal_state == False:
+        Classify_Sensor = PLC.ReadMemory(5,2,S7WLBit)
     if Classify_Sensor == True:
         if list_results[0] == "Type_1":
             ser.write(b"R")
             del list_results[0]
         elif list_results[0] == "Type_2":
             ser.write(b"L")
-            del list_results[0]
+            del list_results[0]   
+        Classify_Sensor = False    
+        signal_state = True
 
-
-
-folder_IMG_RmBG = "Image_RMBG"
-folder_dest ="Image_Backup"
-folder_object_result ="Object_Result/"
-folder_defect_result ="Defect_Result/"
-defect = DetectDefect()
-object = DetectObject()
 PLC_val = PLCVal()
 
 count_img = 0
+state = False
+count = 0
+
+
+def read_from_port(ser):
+    global data_receive, signal_state
+    while True:
+        if ser.in_waiting > 0:
+            data_receive = ser.read(ser.in_waiting)
+            data_receive = data_receive.decode("utf-8")
+            print(data_receive)
+            if data_receive == "F" :
+                signal_state = False
+                data_receive = ""
+
+# Tạo một luồng để đọc dữ liệu từ serial
+thread = threading.Thread(target=read_from_port, args=(ser,))
+thread.daemon = True
+thread.start()
+
 while True:
+    if state == False:
+        if count == 0:
+            SampleWeight = 1900
+        elif count == 1:
+            SampleWeight = 1500
 
-    RL_getLoadcellValue = PLC.ReadMemory(4,2,S7WLBit)
-
-    sensor1 = PLC.ReadMemory(0,3,S7WLBit)
-    sensor2 = PLC.ReadMemory(3,6,S7WLBit)
-    if sensor1 == True:
-        print("LOOP NO")
-        print(f'\n Sensor 1 is TRUE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n')
-        count_img =0
-        flag_PLC = True 
-    elif sensor1 ==False:
-        print(f'\n Sensor 1 is FALSE\nRL4.2: {RL_getLoadcellValue}\nflag_PLC: {flag_PLC} \n')
-
-    if RL_getLoadcellValue == True and flag_PLC == True:
-
-        SampleWeight = PLC_val.getWeightsSample()
-   
-
-    list_path_RMBG=[]
-    # Define the pattern for image files (you can add more extensions if needed)
-    image_files = os.listdir(folder_IMG_RmBG)
-   
-    # Get a list of all image files in the directory
-    # Check if the list is empty
-    if not image_files:
+        else :
+            state = True 
+            SampleWeight = 0
     
-        pass
+    if SampleWeight >1800  and SampleWeight<5000 :
+        list_results.append("Type_1")
+        count += 1
+        
+        # time.sleep(5)
 
-    else:
-        for image_file in image_files :
-            path = os.path.join(folder_IMG_RmBG,image_file)
-            list_path_RMBG.append(path)
-    # Use the max function with a lambda to find the file with the latest modification time
-        newest_image = max(list_path_RMBG, key=os.path.getmtime)
-        origin_img = newest_image.split('/')
-        origin_img_path = "Image_Original/" +origin_img[1]
-        if not newest_image:
-            
-            pass
-        else:
-            count_img  += 1
-            if count_img  ==1 :
-
-                path_file = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + newest_image
-                time.sleep(0.1)
-                image_original = cv2.imread(path_file)
-
-                if image_original is None:
-                    break
-
-    ####################################### GET RESULT IMAGE PROCESSING #####################################
-
-                imgToDetectObject = image_original.copy()
-                imgToDetectDefect = image_original.copy()
-
-                resultDefect,img_processed_defect = defect.getResultDefect(imgToDetectDefect,folder_defect_result)
-                resultObject,img_processed_object = object.getResultObject(imgToDetectObject,folder_object_result)
-                
-                if resultObject == True and resultDefect == True: ######## temporary config
-                    print("Meet Standard IMG Processing")
-                    MeetStandardIMGProcessing = True
-                    print(f"resultObject: {resultObject}, resultDefect: {resultDefect}")
-
-                    
-                else :
-                    MeetStandardIMGProcessing = False
-                    print("Not Meet Standard IMG Processing")
-                    print(f"resultObject: {resultObject}, resultDefect: {resultDefect}")
-
-
-####################################### GET RESULT IMAGE PROCESSING #####################################
-    print(f"flag_object: {flag_object}")
-    print(f"flag_defect: {flag_defect}")
-    print(f"doneGetWeight: {doneGetWeight}")
-    if flag_object == True and flag_defect == True and doneGetWeight == True:
-        print(f"Mass_Out : {SampleWeight}")
-        path_original_img = "/home/pi/Mechatronics_Project/Mechatronics-Project/" + origin_img_path
-      
-        if MeetStandardIMGProcessing == True:
-            print(" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-            if SampleWeight >1800  and SampleWeight<5000 :
-                count += 1
-                print(" Meet Standard Type 1 ")
-                database.child("Sample"+str(count))
-                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 1, "Orgin":"Lam Dong", "Date_Export": formatted_date, "Time_Export": formatted_hour}
-                database.set(data)
-                # print("PUSH DATA SUCCESSFUL")
-                storage.child("Sample"+str(count)+".JPG").put(path_original_img)
-                qrConfig()
-
-                flag_object = False
-                flag_defect = False
-                doneGetWeight = False
-                
-                # CLassification DC Motor 
-             #   ser.write(b"R")
-                
-                print("PUSH DATA SUCCESSFUL")
-                list_results.append("Type_1")
-                # time.sleep(5)
-
-            elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
-                count += 1
-                print(" Meet Standard Type 2")
-                database.child("Sample"+str(count))
-                data = {"Weight": SampleWeight, "Name": "Thai", "Type": 2, "Orgin":"Lam Dong", "Date_Export": formatted_date, "Time_Export": formatted_hour}
-                database.set(data)
-                # print("PUSH DATA SUCCESSFUL")
-                storage.child("Sample"+str(count)+".JPG").put(path_original_img)
-                qrConfig()
-                flag_object = False
-                flag_defect = False
-                doneGetWeight = False
-                
-                # CLassification DC Motor 
-                # ser.write(b"R")
-                print("PUSH DATA SUCCESSFUL")
-                list_results.append("Type_2")
-                # time.sleep(5)
-            else : 
-                count += 1
-               
-                
-                flag_object = False
-                flag_defect = False
-                doneGetWeight = False
-                print(" NOT MEET ABOUT MASS")
-
-        else  :
-                count += 1
-                print(f"Mass_Out : {SampleWeight}")
-                print(" SAMPLE NOT MEET STANDARD")
-                flag_object = False
-                flag_defect = False
-                doneGetWeight = False
-                # time.sleep(5)
-            
-        moveImage(path_file,folder_dest)
-        Classification()
-        # Classify_Sensor =PLC.ReadMemory(5,2,S7WLBit)
-        # if Classify_Sensor == True:
-        #     if list_results[0] == "Type_1":
-        #         ser.write(b"R")
-        #         list_results[0].remove()
-        #     elif list_results[0] == "Type_2":
-        #         ser.write(b"L")
-        #         list_results[0].remove()
+    elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
+        list_results.append("Type_2")
+        count += 1
+        # time.sleep(5)
+    print(f"count :{count}")
+    print(list_results)
+    Classification()
+    
+    
 
 
 
