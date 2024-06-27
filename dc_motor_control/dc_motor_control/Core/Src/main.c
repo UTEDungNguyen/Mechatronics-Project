@@ -182,19 +182,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (otherwise_state == START_OTHERWISE_STATUS)
     {
       classify_state = classify_state == LEFT_CLASSIFY_STATE ? RIGHT_CLASSIFY_STATE : LEFT_CLASSIFY_STATE;
-      interrupt_timer_state = START_INTERRUPT_TIMER_STATUS;
+      interrupt_timer_state = STOP_INTERRUPT_TIMER_STATUS;
       otherwise_state = STOP_OTHERWISE_STATUS;
       HAL_TIM_Base_Stop_IT(&htim3);
+      HAL_UART_Transmit(&huart2, (uint8_t *)"H", 1, 100);
     }
-    else
-    {
-      run_classify = STOP_CLASSIFY_STATE;
-      classify_state = ORIGINAL_CLASSIFY_STATE;
-      interrupt_timer_state = STOP_INTERRUPT_TIMER_STATUS;
-      otherwise_state = START_OTHERWISE_STATUS;
-      HAL_TIM_Base_Stop_IT(&htim3);
-      HAL_UART_Transmit(&huart2, (uint8_t *)"F", 1, 100);
-    }
+    // else
+    // {
+    //   run_classify = STOP_CLASSIFY_STATE;
+    //   classify_state = ORIGINAL_CLASSIFY_STATE;
+    //   interrupt_timer_state = STOP_INTERRUPT_TIMER_STATUS;
+    //   otherwise_state = START_OTHERWISE_STATUS;
+    //   HAL_TIM_Base_Stop_IT(&htim3);
+    //   HAL_UART_Transmit(&huart2, (uint8_t *)"F", 1, 100);
+    // }
   }
 
   /* NOTE : This function should not be modified, when the callback is needed,
@@ -257,7 +258,17 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
       data_pwm[b] = rxbuf_2[b];
     }
 
-    if (data_pwm[0] != 'L' && data_pwm[0] != 'R')
+    if (data_pwm[0] == 'S')
+    {
+      run_classify = STOP_CLASSIFY_STATE;
+      classify_state = ORIGINAL_CLASSIFY_STATE;
+      interrupt_timer_state = STOP_INTERRUPT_TIMER_STATUS;
+      otherwise_state = START_OTHERWISE_STATUS;
+      // HAL_TIM_Base_Stop_IT(&htim3);
+      HAL_UART_Transmit(&huart2, (uint8_t *)"F", 1, 100);
+    }
+
+    if (data_pwm[0] != 'L' && data_pwm[0] != 'R' && data_pwm[0] != 'S')
     {
       state = MOTOR_LEFT_STATE;
       state_change = UART_VARIABLE_RX_STATUS_OK;
@@ -586,7 +597,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 1599;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 2999;
+  htim3.Init.Period = 3799;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
