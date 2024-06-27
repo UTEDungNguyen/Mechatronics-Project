@@ -36,6 +36,7 @@ list_results =[]
 data_receive = 0
 signal_state = False
 Classify_Sensor = False
+stop_threads = False
 
 ser = serial.Serial("/dev/ttyAMA0", 9600)
 # Lấy ngày và giờ hiện tại
@@ -298,11 +299,23 @@ def read_from_port(ser):
             if data_receive == "F" :
                 signal_state = False
                 data_receive = ""
+                
+def sensor(ser):
+    global stop_threads
+    while stop_threads:
+        if (PLC.ReadMemory(5,3,S7WLBit) == True and PLC.ReadMemory(5,4,S7WLBit)== True):
+            ser.write(b"S")
+            state = 0
 
 # Create thread to read data from serial
 thread = threading.Thread(target=read_from_port, args=(ser,))
 thread.daemon = True
 thread.start()
+
+# create thread to get signal classify
+thread_sensor = threading.Thread(target=sensor, args=(ser,))
+thread_sensor.daemon = True
+thread_sensor.start()
     
 folder_IMG_RmBG = "Image_RMBG"
 folder_dest ="Image_Backup"
