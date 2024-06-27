@@ -1607,9 +1607,9 @@ static void MX_TIM3_Init(void)
  8000cda:	4b1a      	ldr	r3, [pc, #104]	; (8000d44 <MX_TIM3_Init+0x94>)
  8000cdc:	2200      	movs	r2, #0
  8000cde:	609a      	str	r2, [r3, #8]
-  htim3.Init.Period = 3799;
+  htim3.Init.Period = 4499;
  8000ce0:	4b18      	ldr	r3, [pc, #96]	; (8000d44 <MX_TIM3_Init+0x94>)
- 8000ce2:	f640 62d7 	movw	r2, #3799	; 0xed7
+ 8000ce2:	f241 1293 	movw	r2, #4499	; 0x1193
  8000ce6:	60da      	str	r2, [r3, #12]
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
  8000ce8:	4b16      	ldr	r3, [pc, #88]	; (8000d44 <MX_TIM3_Init+0x94>)
