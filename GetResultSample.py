@@ -17,6 +17,7 @@ import snap7.client as c
 import pyrebase
 import shutil
 import serial
+import threading
 
 
 storage = firebase.storage()
@@ -30,6 +31,11 @@ doneGetWeight = False
 RL_getLoadcellValue = False
 
 MeetStandardIMGProcessing = False
+
+list_results =[]
+data_receive = 0
+signal_state = False
+Classify_Sensor = False
 
 ser = serial.Serial("/dev/ttyAMA0", 9600)
 # Lấy ngày và giờ hiện tại
@@ -266,8 +272,38 @@ def moveImage(image_path,path_folder):
     # Move the file
     shutil.move(image_path, dest_path)
     
+def Classification():
+    global list_results, Classify_Sensor
+    global data_receive, signal_state
+    if signal_state == False:
+        Classify_Sensor = PLC.ReadMemory(5,2,S7WLBit)
+    if Classify_Sensor == True:
+        if list_results[0] == "Type_1":
+            ser.write(b"R")
+            del list_results[0]
+        elif list_results[0] == "Type_2":
+            ser.write(b"L")
+            del list_results[0]   
+        Classify_Sensor = False    
+        signal_state = True
+        
 
+def read_from_port(ser):
+    global data_receive, signal_state
+    while True:
+        if ser.in_waiting > 0:
+            data_receive = ser.read(ser.in_waiting)
+            data_receive = data_receive.decode("utf-8")
+            print(data_receive)
+            if data_receive == "F" :
+                signal_state = False
+                data_receive = ""
 
+# Create thread to read data from serial
+thread = threading.Thread(target=read_from_port, args=(ser,))
+thread.daemon = True
+thread.start()
+    
 folder_IMG_RmBG = "Image_RMBG"
 folder_dest ="Image_Backup"
 folder_object_result ="Object_Result/"
@@ -371,11 +407,9 @@ while True:
                 flag_object = False
                 flag_defect = False
                 doneGetWeight = False
-                
-                # CLassification DC Motor 
-                ser.write(b"L")
+            
                 print("PUSH DATA SUCCESSFUL")
-                # time.sleep(5)
+                list_results.append("Type_1")
 
             elif (SampleWeight >1400  and SampleWeight <1800) or SampleWeight >5000 :
                 count += 1
@@ -390,10 +424,8 @@ while True:
                 flag_defect = False
                 doneGetWeight = False
                 
-                # CLassification DC Motor 
-                ser.write(b"R")
                 print("PUSH DATA SUCCESSFUL")
-                # time.sleep(5)
+                list_results.append("Type_2")
             else : 
                 count += 1
                
@@ -413,6 +445,7 @@ while True:
                 # time.sleep(5)
             
         moveImage(path_file,folder_dest)
+    Classification()
                 
         
                 
