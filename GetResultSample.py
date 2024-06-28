@@ -51,7 +51,7 @@ def empty(a):
     pass
 cv2.namedWindow("Tracking")
 cv2.resizeWindow("Tracking",640,240)
-cv2.createTrackbar("LH", "Tracking", 100, 255, empty) #97
+cv2.createTrackbar("LH", "Tracking", 97, 255, empty) #97 
 cv2.createTrackbar("LS", "Tracking", 0, 255, empty)
 cv2.createTrackbar("LV", "Tracking", 0, 255, empty)
 cv2.createTrackbar("UH", "Tracking", 106, 255, empty)
@@ -69,6 +69,7 @@ class DetectObject:
             areaMin = 1000 
 
             if area > areaMin:
+                print("Area durian",area)
                 cv2.drawContours(imgContour_Object, cnt, -1, (255, 0, 255), 7)
                 M = cv2.moments(cnt)
                 cx= int(M["m10"]/M["m00"])
@@ -91,8 +92,8 @@ class DetectObject:
                 result_percent = result_sub/area_elipse
                 result_percent = "{:.3f}".format(result_percent)
                 result_percent = float(result_percent)
-                # print("Area of substraction (pixel): ",result_percent)
-                if (result_percent < 0.2): # 20% 
+                print("Area of elipse (pixel): ",area_elipse)
+                if (result_percent < 0.35): # 20% 
                     # print("Durian meet standards")
                     meetStandard = True
                 else:
@@ -111,16 +112,17 @@ class DetectObject:
         image = cv2.resize(image,(400,300))
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Warming threshold needed apdative
-        thresh, output_otsuthresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        # Warming threshold needed apdative 0: ban dem , 105 : ban ngay
+        thresh, output_otsuthresh = cv2.threshold(gray,0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         # Erosion image to detect Object Elipse for Durian 
         kernel = np.ones((3,3),np.uint8)
         output_erosion = cv2.erode(output_otsuthresh, kernel,iterations=2)
         output_dilate = cv2.dilate(output_otsuthresh, kernel,iterations=4)
+        opening = cv2.morphologyEx(output_otsuthresh, cv2.MORPH_GRADIENT, kernel)
         boder =  output_dilate - output_erosion 
         # Detect Contour and measure the area durian object 
-        resultObject,img_processed_object = self.ElipseContours(boder,image)
+        resultObject,img_processed_object = self.ElipseContours(opening,image)
         
         flag_object = True
         if not os.path.exists(folder_object):
@@ -147,7 +149,7 @@ class DetectDefect:
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
 
             # Config area to detect defect of durian
-            areaMin = 500 
+            areaMin = 2000 
             if area > areaMin:
                 cv2.drawContours(imgContour_Defect, cnt, -1, (255, 0, 255),5)
                 peri = cv2.arcLength(cnt, True)
@@ -191,7 +193,7 @@ class DetectDefect:
         mask_dilate = cv2.dilate(mask_morpho, kernel,iterations=2)
         res = cv2.bitwise_and(image,image, mask=mask_dilate)
 
-        # Detecting contours in image
+        # Detecting contours in image 25: ban ngay , 105 : ban dem
         thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
         gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
         bitwise_img = cv2.bitwise_not(gray_image)
@@ -279,7 +281,7 @@ def Classification():
     global data_receive, signal_state
     if signal_state == False:
         Classify_Sensor = PLC.ReadMemory(5,2,S7WLBit)
-    if Classify_Sensor == True:
+    if Classify_Sensor == True and len(list_results) != 0:
         if list_results[0] == "Type_1":
             ser.write(b"R")
             del list_results[0]
@@ -291,7 +293,7 @@ def Classification():
         
 
 def read_from_port(ser):
-    global data_receive, signal_state
+    global data_receive, signal_state, stop_threads
     while True:
         if ser.in_waiting > 0:
             data_receive = ser.read(ser.in_waiting)
@@ -299,6 +301,10 @@ def read_from_port(ser):
             print(data_receive)
             if data_receive == "F" :
                 signal_state = False
+                data_receive = ""
+                
+            if data_receive == "H" :
+                stop_threads = True
                 data_receive = ""
 
 # Create thread to read data from serial
@@ -374,7 +380,7 @@ while True:
                 resultDefect,img_processed_defect = defect.getResultDefect(imgToDetectDefect,folder_defect_result)
                 resultObject,img_processed_object = object.getResultObject(imgToDetectObject,folder_object_result)
                 
-                if resultObject == True and resultDefect == True: ######## temporary config
+                if resultObject == True and resultDefect == False: ######## temporary config
                     print("Meet Standard IMG Processing")
                     MeetStandardIMGProcessing = True
                     print(f"resultObject: {resultObject}, resultDefect: {resultDefect}")
@@ -447,7 +453,11 @@ while True:
                 # time.sleep(5)
             
         moveImage(path_file,folder_dest)
-    #Classification()                                                                                                                                                                                                                                                                                                                                                                                                               
+    Classification()
+    while stop_threads:
+        if (PLC.ReadMemory(5,3,S7WLBit) == True):
+            ser.write(b"S")
+            stop_threads = False                                                                                                                                                                                                                                                                                                                                                                                                               
                 
         
                 

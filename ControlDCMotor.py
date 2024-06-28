@@ -71,11 +71,11 @@ def main():
         # You might want to add a delay to avoid busy-waiting and improve performance
         # time.sleep(0.1)
         # global stop_threads
-        # Sensor =PLC.ReadMemory(5,2,S7WLBit)
-        # if Sensor == True and state_count == False:
-        # # if Sensor == True:
-        #     ser.write(b"R")
-        #     state_count = True
+        Sensor =PLC.ReadMemory(5,2,S7WLBit)
+        if Sensor == True and state_count == False:
+        # if Sensor == True:
+            ser.write(b"R")
+            state_count = True
         while stop_threads:
             if (PLC.ReadMemory(5,3,S7WLBit) == True):
                 ser.write(b"S")
