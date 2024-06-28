@@ -24,14 +24,6 @@ state = 0
 state_count = False
 stop_threads = False
 ser = serial.Serial("/dev/ttyAMA0", 9600)
-
-# def sensor(ser):
-#     while True:
-#         global stop_threads
-#         while stop_threads:
-#             if (PLC.ReadMemory(5,3,S7WLBit) == True and PLC.ReadMemory(5,4,S7WLBit) == True):
-#                 ser.write(b"S")
-#                 stop_threads = False
             
 def read_from_port(ser):
     global data_receive, stop_threads
@@ -42,8 +34,6 @@ def read_from_port(ser):
             print(data_receive)
             if data_receive == "H" :
                 stop_threads = True
-                data_receive = ""
-            elif data_receive == "F" :
                 data_receive = ""
             
 # Create thread to read data from serial
@@ -81,11 +71,11 @@ def main():
         # You might want to add a delay to avoid busy-waiting and improve performance
         # time.sleep(0.1)
         # global stop_threads
-        Sensor =PLC.ReadMemory(5,2,S7WLBit)
-        if Sensor == True and state_count == False:
-        # if Sensor == True:
-            ser.write(b"R")
-            state_count = True
+        # Sensor =PLC.ReadMemory(5,2,S7WLBit)
+        # if Sensor == True and state_count == False:
+        # # if Sensor == True:
+        #     ser.write(b"R")
+        #     state_count = True
         while stop_threads:
             if (PLC.ReadMemory(5,3,S7WLBit) == True):
                 ser.write(b"S")

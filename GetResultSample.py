@@ -51,7 +51,7 @@ def empty(a):
     pass
 cv2.namedWindow("Tracking")
 cv2.resizeWindow("Tracking",640,240)
-cv2.createTrackbar("LH", "Tracking", 97, 255, empty) 
+cv2.createTrackbar("LH", "Tracking", 100, 255, empty) #97
 cv2.createTrackbar("LS", "Tracking", 0, 255, empty)
 cv2.createTrackbar("LV", "Tracking", 0, 255, empty)
 cv2.createTrackbar("UH", "Tracking", 106, 255, empty)
@@ -143,6 +143,7 @@ class DetectDefect:
         for cnt in contours:
             area = cv2.contourArea(cnt)
             list_area.append(area)
+            print("list_area",list_area)
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
 
             # Config area to detect defect of durian
@@ -299,23 +300,11 @@ def read_from_port(ser):
             if data_receive == "F" :
                 signal_state = False
                 data_receive = ""
-                
-def sensor(ser):
-    global stop_threads
-    while stop_threads:
-        if (PLC.ReadMemory(5,3,S7WLBit) == True and PLC.ReadMemory(5,4,S7WLBit)== True):
-            ser.write(b"S")
-            state = 0
 
 # Create thread to read data from serial
 thread = threading.Thread(target=read_from_port, args=(ser,))
 thread.daemon = True
 thread.start()
-
-# create thread to get signal classify
-thread_sensor = threading.Thread(target=sensor, args=(ser,))
-thread_sensor.daemon = True
-thread_sensor.start()
     
 folder_IMG_RmBG = "Image_RMBG"
 folder_dest ="Image_Backup"
@@ -458,7 +447,7 @@ while True:
                 # time.sleep(5)
             
         moveImage(path_file,folder_dest)
-    #Classification()
+    #Classification()                                                                                                                                                                                                                                                                                                                                                                                                               
                 
         
                 
