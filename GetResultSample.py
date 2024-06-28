@@ -458,7 +458,7 @@ while True:
                 # time.sleep(5)
             
         moveImage(path_file,folder_dest)
-    Classification()
+    #Classification()
                 
         
                 
