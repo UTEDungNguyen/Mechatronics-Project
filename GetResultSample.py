@@ -64,6 +64,7 @@ class DetectObject:
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
             area = cv2.contourArea(cnt)
+            print(area)
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
             # Config area to detect object value 
             areaMin = 1000 
@@ -113,7 +114,7 @@ class DetectObject:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # Warming threshold needed apdative 0: ban dem , 105 : ban ngay
-        thresh, output_otsuthresh = cv2.threshold(gray,0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        thresh, output_otsuthresh = cv2.threshold(gray,105, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         # Erosion image to detect Object Elipse for Durian 
         kernel = np.ones((3,3),np.uint8)
@@ -194,7 +195,7 @@ class DetectDefect:
         res = cv2.bitwise_and(image,image, mask=mask_dilate)
 
         # Detecting contours in image 25: ban ngay , 105 : ban dem
-        thresh, output_threshold = cv2.threshold(res,105, 255, 1, cv2.THRESH_BINARY)
+        thresh, output_threshold = cv2.threshold(res,25, 255, 1, cv2.THRESH_BINARY)
         gray_image = cv2.cvtColor(output_threshold, cv2.COLOR_BGR2GRAY)
         bitwise_img = cv2.bitwise_not(gray_image)
         # Detecting contours in image
