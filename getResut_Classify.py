@@ -272,13 +272,14 @@ def moveImage(image_path,path_folder):
 data_receive = 0
 signal_state = False
 Classify_Sensor = False
+stop_threads = False
     
 def Classification():
     global list_results, Classify_Sensor
     global data_receive, signal_state
     if signal_state == False:
         Classify_Sensor = PLC.ReadMemory(5,2,S7WLBit)
-    if Classify_Sensor == True:
+    if Classify_Sensor == True and len(list_results) != 0:
         if list_results[0] == "Type_1":
             ser.write(b"R")
             del list_results[0]
@@ -296,7 +297,7 @@ count = 0
 
 
 def read_from_port(ser):
-    global data_receive, signal_state
+    global data_receive, signal_state, stop_threads
     while True:
         if ser.in_waiting > 0:
             data_receive = ser.read(ser.in_waiting)
@@ -304,6 +305,10 @@ def read_from_port(ser):
             print(data_receive)
             if data_receive == "F" :
                 signal_state = False
+                data_receive = ""
+                
+            if data_receive == "H" :
+                stop_threads = True
                 data_receive = ""
 
 # Tạo một luồng để đọc dữ liệu từ serial
@@ -335,6 +340,10 @@ while True:
     print(f"count :{count}")
     print(list_results)
     Classification()
+    while stop_threads:
+        if (PLC.ReadMemory(5,3,S7WLBit) == True):
+            ser.write(b"S")
+            stop_threads = False   
     
     
 

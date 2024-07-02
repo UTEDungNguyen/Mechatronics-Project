@@ -150,7 +150,7 @@ class DetectDefect:
             selected_contour = max(contours, key=lambda x: cv2.contourArea(x))
 
             # Config area to detect defect of durian
-            areaMin = 2000 
+            areaMin = 200000 
             if area > areaMin:
                 cv2.drawContours(imgContour_Defect, cnt, -1, (255, 0, 255),5)
                 peri = cv2.arcLength(cnt, True)
@@ -232,7 +232,7 @@ class PLCVal:
                 list_Weights.append(Mass_Out)
             
             elif RL_chan == False and RL_le == True:
-                Mass_Out = PLC.ReadMemory(54,0,S7WLWord)
+                Mass_Out = PLC.ReadMemory(62,0,S7WLWord)
                 list_Weights.append(Mass_Out)
            
         flag_PLC = False
